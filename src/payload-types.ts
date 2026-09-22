@@ -67,8 +67,11 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    voitures: Voiture;
+    categories: Categorie;
     media: Media;
+    demandes: Demande;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -76,8 +79,11 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    voitures: VoituresSelect<false> | VoituresSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    demandes: DemandesSelect<false> | DemandesSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -87,8 +93,14 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    agence: Agence;
+    'pages-legales': PagesLegales;
+  };
+  globalsSelect: {
+    agence: AgenceSelect<false> | AgenceSelect<true>;
+    'pages-legales': PagesLegalesSelect<false> | PagesLegalesSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -119,28 +131,74 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "voitures".
  */
-export interface User {
+export interface Voiture {
   id: string;
+  marque: string;
+  modele: string;
+  categorie: string | Categorie;
+  /**
+   * La première photo est la photo principale.
+   */
+  photos: (string | Media)[];
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  caracteristiques: {
+    boite: 'manuelle' | 'automatique';
+    carburant: 'essence' | 'diesel' | 'hybride' | 'electrique';
+    places: number;
+    portes?: number | null;
+    climatisation?: boolean | null;
+  };
+  tarifs: {
+    prixJour: number;
+    prixWeekend?: number | null;
+    prixSemaine?: number | null;
+    caution?: number | null;
+    kmInclus?: string | null;
+  };
+  /**
+   * Décochez quand la voiture est louée : elle reste affichée avec un badge « Déjà louée ».
+   */
+  disponible?: boolean | null;
+  /**
+   * Rempli automatiquement (marque + modèle).
+   */
+  titre?: string | null;
+  /**
+   * Généré automatiquement à la création, ne change plus ensuite.
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Categorie {
+  id: string;
+  nom: string;
+  /**
+   * Généré automatiquement à la création, ne change plus ensuite.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -160,6 +218,88 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    miniature?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    carte?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    grande?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demandes".
+ */
+export interface Demande {
+  id: string;
+  prenom: string;
+  nom: string;
+  email: string;
+  telephone: string;
+  adresse: {
+    rue: string;
+    codePostal: string;
+    ville: string;
+  };
+  /**
+   * Vide = question générale.
+   */
+  voiture?: (string | null) | Voiture;
+  message: string;
+  statut: 'nouvelle' | 'traitee';
+  mailAgenceEnvoye?: boolean | null;
+  mailClientEnvoye?: boolean | null;
+  /**
+   * Rempli automatiquement.
+   */
+  titre?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: string;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -186,12 +326,24 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'voitures';
+        value: string | Voiture;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Categorie;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'demandes';
+        value: string | Demande;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: string | User;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -237,25 +389,47 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "voitures_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface VoituresSelect<T extends boolean = true> {
+  marque?: T;
+  modele?: T;
+  categorie?: T;
+  photos?: T;
+  description?: T;
+  caracteristiques?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
+        boite?: T;
+        carburant?: T;
+        places?: T;
+        portes?: T;
+        climatisation?: T;
       };
+  tarifs?:
+    | T
+    | {
+        prixJour?: T;
+        prixWeekend?: T;
+        prixSemaine?: T;
+        caution?: T;
+        kmInclus?: T;
+      };
+  disponible?: T;
+  titre?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  nom?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -274,6 +448,88 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        miniature?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        carte?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        grande?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demandes_select".
+ */
+export interface DemandesSelect<T extends boolean = true> {
+  prenom?: T;
+  nom?: T;
+  email?: T;
+  telephone?: T;
+  adresse?:
+    | T
+    | {
+        rue?: T;
+        codePostal?: T;
+        ville?: T;
+      };
+  voiture?: T;
+  message?: T;
+  statut?: T;
+  mailAgenceEnvoye?: T;
+  mailClientEnvoye?: T;
+  titre?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -314,6 +570,120 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agence".
+ */
+export interface Agence {
+  id: string;
+  nom?: string | null;
+  accroche?: string | null;
+  sousAccroche?: string | null;
+  adresse?: {
+    rue?: string | null;
+    codePostal?: string | null;
+    ville?: string | null;
+  };
+  telephone?: string | null;
+  emailPublic?: string | null;
+  /**
+   * Non affiché sur le site. Sans adresse ici, aucune demande n’est transmise par mail.
+   */
+  emailDemandes?: string | null;
+  horaires?:
+    | {
+        jours: string;
+        heures: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Facultatif : sans logo, le nom de l’agence s’affiche en texte.
+   */
+  logo?: (string | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages-legales".
+ */
+export interface PagesLegales {
+  id: string;
+  mentionsLegales?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  confidentialite?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agence_select".
+ */
+export interface AgenceSelect<T extends boolean = true> {
+  nom?: T;
+  accroche?: T;
+  sousAccroche?: T;
+  adresse?:
+    | T
+    | {
+        rue?: T;
+        codePostal?: T;
+        ville?: T;
+      };
+  telephone?: T;
+  emailPublic?: T;
+  emailDemandes?: T;
+  horaires?:
+    | T
+    | {
+        jours?: T;
+        heures?: T;
+        id?: T;
+      };
+  logo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages-legales_select".
+ */
+export interface PagesLegalesSelect<T extends boolean = true> {
+  mentionsLegales?: T;
+  confidentialite?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
