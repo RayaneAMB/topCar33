@@ -1,5 +1,6 @@
 import type { MongooseAdapter } from '@payloadcms/db-mongodb'
 import config from '@/payload.config'
+import type { Voiture } from '@/payload-types'
 import { getPayload, type CollectionSlug, type Payload } from 'payload'
 import sharp from 'sharp'
 
@@ -22,6 +23,12 @@ async function attendreCollectionsPretes(payload: Payload): Promise<void> {
 
 export function creerCategorie(payload: Payload, nom: string) {
   return payload.create({ collection: 'categories', data: { nom } })
+}
+
+/** Crée la marque si elle n'existe pas déjà, et la renvoie. */
+export async function creerMarque(payload: Payload, nom: string) {
+  const { docs } = await payload.find({ collection: 'marques', where: { nom: { equals: nom } }, limit: 1 })
+  return docs[0] ?? (await payload.create({ collection: 'marques', data: { nom } }))
 }
 
 /** Vide les collections dans l'ordre donné (mettre les collections « enfants » en premier). */
@@ -61,6 +68,7 @@ export async function creerImage(payload: Payload, alt = 'Photo de test', largeu
 }
 
 type OptionsVoiture = {
+  /** Identifiant d'une marque existante, ou nom de marque (créée au besoin). */
   marque?: string
   modele?: string
   categorie?: string
@@ -76,7 +84,12 @@ let compteurCategories = 0
 
 /** Crée une voiture valide (avec photo et catégorie) ; chaque option peut être surchargée. */
 export async function creerVoiture(payload: Payload, options: OptionsVoiture = {}) {
-  const marque = options.marque ?? 'Peugeot'
+  const demande = options.marque ?? 'Peugeot'
+  // Un identifiant Mongo fait 24 caractères hexadécimaux ; sinon c'est un nom de marque.
+  const estUnId = /^[0-9a-f]{24}$/i.test(demande)
+  const marqueDoc = estUnId ? null : await creerMarque(payload, demande)
+  const marque = marqueDoc?.id ?? demande
+  const nomMarque = marqueDoc?.nom ?? (await payload.findByID({ collection: 'marques', id: marque })).nom
   const modele = options.modele ?? '208'
   const offre = options.offre ?? 'location'
   let categorie = options.categorie
@@ -84,7 +97,7 @@ export async function creerVoiture(payload: Payload, options: OptionsVoiture = {
     compteurCategories += 1
     categorie = (await creerCategorie(payload, `Catégorie de test ${compteurCategories}-${Date.now()}`)).id
   }
-  const photo = await creerImage(payload, `${marque} ${modele}`, 900, 600)
+  const photo = await creerImage(payload, `${nomMarque} ${modele}`, 900, 600)
   return payload.create({
     collection: 'voitures',
     data: {

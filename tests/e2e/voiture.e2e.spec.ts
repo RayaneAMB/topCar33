@@ -12,14 +12,14 @@ test.describe('Fiche voiture', () => {
   })
 
   test('affiche caractéristiques, tarifs et bouton de contact', async ({ page }) => {
-    await page.goto('/voitures/e2e-testmobile')
+    await page.goto('/voitures/tesla-testmobile')
     await expect(page).toHaveTitle(`Location ${E2E.marque} ${E2E.modele} | TopCar33`)
     await expect(page.getByRole('heading', { level: 1, name: `${E2E.marque} ${E2E.modele}` })).toBeVisible()
     await expect(page.getByText('Électrique')).toBeVisible()
     await expect(page.getByText('Automatique')).toBeVisible()
     await expect(page.getByRole('row', { name: /Semaine/ })).toContainText('70')
     await page.getByRole('link', { name: 'Contacter pour ce véhicule' }).click()
-    await expect(page).toHaveURL(/\/contact\?voiture=e2e-testmobile$/)
+    await expect(page).toHaveURL(/\/contact\?voiture=tesla-testmobile$/)
   })
 
   test('une voiture inconnue renvoie une 404', async ({ page }) => {

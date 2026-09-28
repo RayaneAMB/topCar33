@@ -24,7 +24,7 @@ export default async function PageContact({
     .filter((item) => item.slug)
     .map((item) => ({
       slug: item.slug as string,
-      titre: item.titre || `${item.marque} ${item.modele}`,
+      titre: item.titre || item.modele,
       offre: estAVendre(item) ? ('vente' as const) : ('location' as const),
     }))
     .sort((a, b) => a.titre.localeCompare(b.titre, 'fr'))

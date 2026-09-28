@@ -1,10 +1,26 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
 
 import { connecte, tousLesVisiteurs } from '../access'
 import { slugify, slugUnique } from '../lib/slug'
 import { BOITES, CARBURANTS, OFFRES } from '../lib/voitureOptions'
 
 const ANNEE_MAX = new Date().getFullYear() + 1
+
+/** Le titre et l'URL ont besoin du nom de la marque, pas de son identifiant. */
+async function nomDeMarque(req: PayloadRequest, marque: unknown): Promise<string> {
+  if (!marque) return ''
+  if (typeof marque === 'object' && 'nom' in (marque as Record<string, unknown>)) {
+    return String((marque as { nom?: unknown }).nom ?? '')
+  }
+  const doc = await req.payload.findByID({
+    collection: 'marques',
+    id: String(marque),
+    depth: 0,
+    req,
+    disableErrors: true,
+  })
+  return doc?.nom ?? ''
+}
 
 export const Voitures: CollectionConfig = {
   slug: 'voitures',
@@ -13,7 +29,7 @@ export const Voitures: CollectionConfig = {
   admin: {
     useAsTitle: 'titre',
     defaultColumns: ['titre', 'offre', 'categorie', 'disponible', 'updatedAt'],
-    listSearchableFields: ['marque', 'modele'],
+    listSearchableFields: ['titre', 'modele'],
     group: 'Catalogue',
   },
   access: {
@@ -26,10 +42,11 @@ export const Voitures: CollectionConfig = {
     beforeValidate: [
       async ({ data, operation, req }) => {
         if (operation === 'create' && data && !data.slug && data.marque && data.modele) {
+          const nom = await nomDeMarque(req, data.marque)
           data.slug = await slugUnique({
             payload: req.payload,
             collection: 'voitures',
-            base: slugify(`${data.marque} ${data.modele}`) || 'voiture',
+            base: slugify(`${nom} ${data.modele}`) || 'voiture',
             req,
           })
         }
@@ -37,10 +54,11 @@ export const Voitures: CollectionConfig = {
       },
     ],
     beforeChange: [
-      ({ data, originalDoc }) => {
+      async ({ data, originalDoc, req }) => {
         const marque = data.marque ?? originalDoc?.marque
         const modele = data.modele ?? originalDoc?.modele
-        data.titre = [marque, modele].filter(Boolean).join(' ')
+        const nom = await nomDeMarque(req, marque)
+        data.titre = [nom, modele].filter(Boolean).join(' ')
         return data
       },
     ],
@@ -61,8 +79,24 @@ export const Voitures: CollectionConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'marque', label: 'Marque', type: 'text', required: true, admin: { width: '50%' } },
-        { name: 'modele', label: 'Modèle', type: 'text', required: true, admin: { width: '50%' } },
+        {
+          name: 'marque',
+          label: 'Marque',
+          type: 'relationship',
+          relationTo: 'marques',
+          required: true,
+          admin: {
+            width: '50%',
+            description: 'Marque absente de la liste ? Ajoutez-la avec le bouton + à droite du champ.',
+          },
+        },
+        {
+          name: 'modele',
+          label: 'Modèle',
+          type: 'text',
+          required: true,
+          admin: { width: '50%', placeholder: 'ex. 208, Clio V, Duster' },
+        },
       ],
     },
     {
@@ -185,6 +219,9 @@ export const Voitures: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Décochez quand la voiture est louée : elle reste affichée avec un badge « Déjà louée ».',
+        components: {
+          Cell: '/components/admin/CelluleDisponible#CelluleDisponible',
+        },
       },
     },
     {

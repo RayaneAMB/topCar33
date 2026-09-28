@@ -11,7 +11,7 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
   const photo = premierePhoto(voiture.photos)
   const src = urlPhoto(photo, 'carte')
   const categorie = nomCategorie(voiture.categorie)
-  const titre = voiture.titre || `${voiture.marque} ${voiture.modele}`
+  const titre = voiture.titre || voiture.modele
   const prix = prixPrincipal(voiture)
 
   return (

@@ -6,7 +6,9 @@ import config from '../../src/payload.config.js'
 /** Données créées par les tests e2e (préfixe E2E), supprimées à la fin. */
 export const E2E = {
   categorie: 'E2E Catégorie',
-  marque: 'E2E',
+  // La marque vient désormais d'une liste fixe : on prend une marque réelle,
+  // et ce sont les modèles inventés qui identifient les données de test.
+  marque: 'Tesla' as const,
   modele: 'Testmobile',
   modeleVente: 'Vendmobile',
   altPhoto: 'Photo E2E',
@@ -22,14 +24,21 @@ async function payloadE2E(): Promise<Payload> {
 export async function nettoyerDonneesE2E(): Promise<void> {
   const payload = await payloadE2E()
   await payload.delete({ collection: 'demandes', where: { email: { equals: E2E.email } } })
-  await payload.delete({ collection: 'voitures', where: { marque: { equals: E2E.marque } } })
+  await payload.delete({ collection: 'voitures', where: { modele: { in: [E2E.modele, E2E.modeleVente] } } })
   await payload.delete({ collection: 'categories', where: { nom: { equals: E2E.categorie } } })
   await payload.delete({ collection: 'media', where: { alt: { equals: E2E.altPhoto } } })
+}
+
+/** La marque est une fiche de la base : on la réutilise si elle existe déjà. */
+async function trouverOuCreerMarque(payload: Payload, nom: string) {
+  const { docs } = await payload.find({ collection: 'marques', where: { nom: { equals: nom } }, limit: 1 })
+  return docs[0] ?? (await payload.create({ collection: 'marques', data: { nom } }))
 }
 
 export async function preparerDonneesE2E() {
   const payload = await payloadE2E()
   await nettoyerDonneesE2E()
+  const marque = await trouverOuCreerMarque(payload, E2E.marque)
   const image = await sharp({ create: { width: 1200, height: 750, channels: 3, background: '#445566' } })
     .png()
     .toBuffer()
@@ -43,7 +52,7 @@ export async function preparerDonneesE2E() {
     collection: 'voitures',
     data: {
       offre: 'location',
-      marque: E2E.marque,
+      marque: marque.id,
       modele: E2E.modele,
       categorie: categorie.id,
       photos: [photo.id],
@@ -56,7 +65,7 @@ export async function preparerDonneesE2E() {
     collection: 'voitures',
     data: {
       offre: 'vente',
-      marque: E2E.marque,
+      marque: marque.id,
       modele: E2E.modeleVente,
       categorie: categorie.id,
       photos: [photo.id],

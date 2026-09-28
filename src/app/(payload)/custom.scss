@@ -73,17 +73,110 @@
   }
 }
 
-/* Liens et navigation */
-a:not(.btn):not(.nav__link),
-.nav__link:hover,
-.nav__link--active {
+/* Bouton « Créer » en tête de liste */
+.btn.btn--style-pill {
+  background: rgb(1 150 174 / 12%);
+  color: var(--tc-petrole);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--tc-petrole);
+    color: #fff;
+  }
+}
+
+/* Liens */
+a:not(.btn):not(.nav__link) {
   color: var(--tc-petrole);
 }
 
+/* ---- Menu latéral : anthracite de la marque, comme le site ---- */
+.nav {
+  background-color: var(--tc-anthracite);
+  color: #edefef;
+}
+
+.nav__wrap,
+.nav__scroll,
+.nav__header,
+.nav__controls {
+  background-color: transparent;
+}
+
 .nav-group__toggle {
-  color: var(--tc-graphite);
-  letter-spacing: 0.06em;
+  color: #8d9495;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.nav__link {
+  border-left: 2px solid transparent;
+  color: #d5d9da;
+
+  &:hover,
+  &:focus-visible {
+    background-color: rgb(0 194 212 / 12%);
+    border-left-color: var(--tc-cyan);
+    color: #fff;
+  }
+
+}
+
+/* Page courante : Payload la rend en <div> (pas de lien vers soi-même). */
+div.nav__link {
+  background-color: rgb(0 194 212 / 16%);
+  border-left-color: var(--tc-cyan);
+  color: var(--tc-cyan);
+  font-weight: 600;
+}
+
+.nav__log-out,
+.nav__link-indicator {
+  color: #8d9495;
+}
+
+/* ---- En-tête et contenu ---- */
+.app-header {
+  border-bottom: 2px solid var(--tc-petrole);
+}
+
+/* Tableaux : en-tête teinté et survol de ligne, pour suivre les lignes du regard. */
+.table thead th {
+  background-color: rgb(1 150 174 / 8%);
+  color: var(--tc-anthracite);
+}
+
+.table tbody tr:hover {
+  background-color: rgb(0 194 212 / 7%);
+}
+
+/* Pastille de disponibilité dans la liste des voitures */
+.tc-etat {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+  white-space: nowrap;
+}
+
+.tc-etat--oui {
+  background-color: rgb(20 160 100 / 14%);
+  color: #12784c;
+}
+
+.tc-etat--non {
+  background-color: rgb(200 60 50 / 12%);
+  color: #b4362c;
+}
+
+/* Cartes du tableau de bord */
+.card {
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--tc-petrole);
+  }
 }
 
 /* Contour de focus, comme sur le site. */

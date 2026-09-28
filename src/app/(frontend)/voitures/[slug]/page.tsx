@@ -39,7 +39,7 @@ export default async function PageVoiture({ params }: Params) {
   const voiture = await getVoiture(slug)
   if (!voiture) notFound()
 
-  const titre = voiture.titre || `${voiture.marque} ${voiture.modele}`
+  const titre = voiture.titre || voiture.modele
   const categorie = nomCategorie(voiture.categorie)
   const aVendre = estAVendre(voiture)
   const prix = prixPrincipal(voiture)

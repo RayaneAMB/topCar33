@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import { creerAdmin, creerCategorie, creerImage, creerVoiture, initPayload, viderCollections } from './helpers'
+import { creerAdmin, creerCategorie, creerImage, creerMarque, creerVoiture, initPayload, viderCollections } from './helpers'
 
 let payload: Payload
 
@@ -11,7 +11,7 @@ describe('Collection voitures', () => {
   })
 
   beforeEach(async () => {
-    await viderCollections(payload, ['voitures', 'categories', 'media', 'users'])
+    await viderCollections(payload, ['voitures', 'marques', 'categories', 'media', 'users'])
   })
 
   it('calcule le titre et le slug depuis la marque et le modèle', async () => {
@@ -48,12 +48,13 @@ describe('Collection voitures', () => {
 
   it('exige au moins une photo', async () => {
     const categorie = await creerCategorie(payload, 'Citadine')
+    const marque = await creerMarque(payload, 'Fiat')
     await expect(
       payload.create({
         collection: 'voitures',
         data: {
           offre: 'location',
-          marque: 'Fiat',
+          marque: marque.id,
           modele: '500',
           categorie: categorie.id,
           photos: [],
@@ -87,13 +88,14 @@ describe('Collection voitures', () => {
 
   it('refuse une voiture à vendre sans prix de vente', async () => {
     const categorie = await creerCategorie(payload, 'Citadine')
+    const marque = await creerMarque(payload, 'Fiat')
     const photo = await creerImage(payload, 'Sans prix', 900, 600)
     await expect(
       payload.create({
         collection: 'voitures',
         data: {
           offre: 'vente',
-          marque: 'Fiat',
+          marque: marque.id,
           modele: '500',
           categorie: categorie.id,
           photos: [photo.id],
@@ -105,13 +107,14 @@ describe('Collection voitures', () => {
 
   it('refuse une voiture à louer sans prix par jour', async () => {
     const categorie = await creerCategorie(payload, 'Berline')
+    const marque = await creerMarque(payload, 'Fiat')
     const photo = await creerImage(payload, 'Sans tarif', 900, 600)
     await expect(
       payload.create({
         collection: 'voitures',
         data: {
           offre: 'location',
-          marque: 'Fiat',
+          marque: marque.id,
           modele: 'Panda',
           categorie: categorie.id,
           photos: [photo.id],
@@ -129,10 +132,11 @@ describe('Collection voitures', () => {
 
   it('un visiteur anonyme ne peut pas créer de voiture, un admin si', async () => {
     const categorie = await creerCategorie(payload, 'SUV')
+    const marque = await creerMarque(payload, 'Dacia')
     const photo = await creerImage(payload, 'Duster', 900, 600)
     const donnees = {
       offre: 'location' as const,
-      marque: 'Dacia',
+      marque: marque.id,
       modele: 'Duster',
       categorie: categorie.id,
       photos: [photo.id],

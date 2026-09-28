@@ -24,8 +24,8 @@ test.describe('Contact', () => {
   })
 
   test('voiture présélectionnée, envoi, message de remerciement et demande enregistrée', async ({ page }) => {
-    await page.goto('/contact?voiture=e2e-testmobile')
-    await expect(page.getByLabel('Voiture concernée')).toHaveValue('e2e-testmobile')
+    await page.goto('/contact?voiture=tesla-testmobile')
+    await expect(page.getByLabel('Voiture concernée')).toHaveValue('tesla-testmobile')
 
     await page.getByLabel('Prénom').fill('Camille')
     await page.getByLabel('Nom', { exact: true }).fill('Martin')

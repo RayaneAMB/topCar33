@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     voitures: Voiture;
+    marques: Marque;
     categories: Categorie;
     media: Media;
     demandes: Demande;
@@ -80,6 +81,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     voitures: VoituresSelect<false> | VoituresSelect<true>;
+    marques: MarquesSelect<false> | MarquesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     demandes: DemandesSelect<false> | DemandesSelect<true>;
@@ -139,7 +141,10 @@ export interface Voiture {
    * À louer : tarifs de location. À vendre : prix de vente, année et kilométrage.
    */
   offre: 'location' | 'vente';
-  marque: string;
+  /**
+   * Marque absente de la liste ? Ajoutez-la avec le bouton + à droite du champ.
+   */
+  marque: string | Marque;
   modele: string;
   categorie: string | Categorie;
   /**
@@ -188,6 +193,22 @@ export interface Voiture {
    * Rempli automatiquement (marque + modèle).
    */
   titre?: string | null;
+  /**
+   * Généré automatiquement à la création, ne change plus ensuite.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * La liste proposée dans le formulaire d’une voiture. Ajoutez ici les marques qui manquent.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marques".
+ */
+export interface Marque {
+  id: string;
+  nom: string;
   /**
    * Généré automatiquement à la création, ne change plus ensuite.
    */
@@ -343,6 +364,10 @@ export interface PayloadLockedDocument {
         value: string | Voiture;
       } | null)
     | ({
+        relationTo: 'marques';
+        value: string | Marque;
+      } | null)
+    | ({
         relationTo: 'categories';
         value: string | Categorie;
       } | null)
@@ -438,6 +463,16 @@ export interface VoituresSelect<T extends boolean = true> {
       };
   disponible?: T;
   titre?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marques_select".
+ */
+export interface MarquesSelect<T extends boolean = true> {
+  nom?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;

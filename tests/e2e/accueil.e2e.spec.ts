@@ -23,13 +23,13 @@ test.describe('Accueil', () => {
     await expect(carte).toContainText('12')
     await expect(carte.getByRole('link', { name: 'Contacter' })).toHaveAttribute(
       'href',
-      '/contact?voiture=e2e-testmobile',
+      '/contact?voiture=tesla-testmobile',
     )
   })
 
   test('un clic sur la carte ouvre la fiche de la voiture', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('link', { name: `${E2E.marque} ${E2E.modele}` }).first().click()
-    await expect(page).toHaveURL(/\/voitures\/e2e-testmobile$/)
+    await expect(page).toHaveURL(/\/voitures\/tesla-testmobile$/)
   })
 })

@@ -1,6 +1,8 @@
+import type { MongooseAdapter } from '@payloadcms/db-mongodb'
 import type { Payload } from 'payload'
 
 import { slugify } from '../lib/slug'
+import { MARQUES } from '../lib/voitureOptions'
 import { imageVoiture, type Silhouette } from './images'
 import { paragraphes } from './lexical'
 
@@ -87,6 +89,46 @@ async function trouverOuCreerCategorie(payload: Payload, nom: string): Promise<s
   return (await payload.create({ collection: 'categories', data: { nom } })).id
 }
 
+async function trouverOuCreerMarque(payload: Payload, nom: string): Promise<string> {
+  const { docs } = await payload.find({ collection: 'marques', where: { nom: { equals: nom } }, limit: 1 })
+  if (docs[0]) return docs[0].id
+  return (await payload.create({ collection: 'marques', data: { nom } })).id
+}
+
+/** Remplit la liste des marques proposées dans le formulaire d'une voiture. */
+async function semerMarques(payload: Payload): Promise<void> {
+  let creees = 0
+  for (const { label } of MARQUES) {
+    const { totalDocs } = await payload.count({ collection: 'marques', where: { nom: { equals: label } } })
+    if (totalDocs === 0) {
+      await payload.create({ collection: 'marques', data: { nom: label } })
+      creees += 1
+    }
+  }
+  if (creees > 0) payload.logger.info(`Seed : ${creees} marque(s) ajoutée(s).`)
+}
+
+/**
+ * Les voitures enregistrées quand la marque était un simple texte sont reliées
+ * à la marque correspondante (créée si besoin).
+ */
+async function normaliserMarques(payload: Payload): Promise<void> {
+  const db = payload.db as MongooseAdapter
+  const voitures = db.collections.voitures.collection
+  const anciennes = await voitures.find({ marque: { $type: 'string' } }).toArray()
+
+  for (const doc of anciennes) {
+    const nom = String(doc.marque)
+    await trouverOuCreerMarque(payload, nom)
+    const marque = await db.collections.marques.collection.findOne({ nom })
+    if (marque) await voitures.updateOne({ _id: doc._id }, { $set: { marque: marque._id } })
+  }
+
+  if (anciennes.length > 0) {
+    payload.logger.info(`Seed : ${anciennes.length} voiture(s) reliée(s) à leur marque.`)
+  }
+}
+
 /** Les voitures enregistrées avant l'ajout du champ « offre » deviennent des voitures à louer. */
 async function normaliserOffres(payload: Payload): Promise<void> {
   const { docs } = await payload.update({
@@ -100,6 +142,8 @@ async function normaliserOffres(payload: Payload): Promise<void> {
 /** Remplit la base avec des données TEMPORAIRES (voitures de démo, infos agence, pages légales). */
 export async function seed(payload: Payload): Promise<void> {
   await normaliserOffres(payload)
+  await semerMarques(payload)
+  await normaliserMarques(payload)
 
   const idsCategories = new Map<string, string>()
   let creees = 0
@@ -123,7 +167,7 @@ export async function seed(payload: Payload): Promise<void> {
       collection: 'voitures',
       data: {
         offre: voiture.offre,
-        marque: voiture.marque,
+        marque: await trouverOuCreerMarque(payload, voiture.marque),
         modele: voiture.modele,
         categorie: idsCategories.get(voiture.categorie) as string,
         photos: [photo.id],

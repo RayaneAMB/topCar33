@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
 import { Demandes } from './collections/Demandes'
+import { Marques } from './collections/Marques'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 import { Voitures } from './collections/Voitures'
@@ -35,7 +36,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Voitures, Categories, Media, Demandes, Users],
+  collections: [Voitures, Marques, Categories, Media, Demandes, Users],
   globals: [Agence, PagesLegales],
   editor: lexicalEditor(),
   email: adaptateurEmail(),

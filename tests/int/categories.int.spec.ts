@@ -11,7 +11,7 @@ describe('Collection catégories', () => {
   })
 
   beforeEach(async () => {
-    await viderCollections(payload, ['voitures', 'categories', 'media', 'users'])
+    await viderCollections(payload, ['voitures', 'marques', 'categories', 'media', 'users'])
   })
 
   it('génère le slug à la création', async () => {

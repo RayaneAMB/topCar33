@@ -52,7 +52,7 @@ test.describe('Location et vente', () => {
   })
 
   test('la fiche d’une voiture à vendre montre le prix de vente et pas de tarif journalier', async ({ page }) => {
-    await page.goto('/voitures/e2e-vendmobile')
+    await page.goto('/voitures/tesla-vendmobile')
     await expect(page.getByRole('heading', { level: 1, name: `${E2E.marque} ${E2E.modeleVente}` })).toBeVisible()
     await expect(page.getByRole('row', { name: /Année/ })).toContainText('2020')
     await expect(page.getByRole('row', { name: /Kilométrage/ })).toContainText('45')

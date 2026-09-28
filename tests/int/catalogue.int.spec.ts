@@ -15,7 +15,7 @@ describe('Catalogue', () => {
   })
 
   beforeEach(async () => {
-    await viderCollections(payload, ['demandes', 'voitures', 'categories', 'media'])
+    await viderCollections(payload, ['demandes', 'voitures', 'marques', 'categories', 'media'])
   })
 
   it('liste les voitures à louer par prix croissant, avec catégorie et photos chargées', async () => {

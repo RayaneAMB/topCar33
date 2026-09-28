@@ -29,7 +29,7 @@ describe('traiterDemande', () => {
   })
 
   beforeEach(async () => {
-    await viderCollections(payload, ['demandes', 'voitures', 'categories', 'media'])
+    await viderCollections(payload, ['demandes', 'voitures', 'marques', 'categories', 'media'])
     await payload.updateGlobal({
       slug: 'agence',
       data: {
