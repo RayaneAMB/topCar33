@@ -1,0 +1,108 @@
+/* ============================================================================
+   HABILLAGE TOPCAR33 DU BACK-OFFICE
+   Payload garde son ergonomie ; seules les couleurs, les polices et le logo
+   suivent la charte. Le bleu pétrole est lisible sur les deux thèmes de Payload
+   (clair et sombre), donc une seule couleur d'action suffit.
+   ============================================================================ */
+
+@font-face {
+  font-family: 'Montserrat Admin';
+  src: url('/polices/montserrat-latin-wght-normal.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bank Gothic';
+  src: url('/polices/BankGothic-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bank Gothic';
+  src: url('/polices/BankGothic-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* Couleurs de la charte */
+  --tc-petrole: #0196ae;
+  --tc-cyan: #00c2d4;
+  --tc-anthracite: #282d2e;
+  --tc-graphite: #5c5e60;
+
+  --font-body: 'Montserrat Admin', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Titres de page : la police du logo, comme sur le site. */
+.doc-header__title,
+.list-header h1,
+.collection-list h1,
+.dashboard h1 {
+  font-family: 'Bank Gothic', var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Boutons d'action : bleu pétrole, survol cyan. */
+.btn.btn--style-primary {
+  --color: #fff;
+
+  background: var(--tc-petrole);
+  border-color: var(--tc-petrole);
+  color: #fff;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--tc-cyan);
+    border-color: var(--tc-cyan);
+    color: var(--tc-anthracite);
+  }
+}
+
+.btn.btn--style-secondary {
+  border-color: var(--tc-petrole);
+  color: var(--tc-petrole);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--tc-petrole);
+    color: #fff;
+  }
+}
+
+/* Liens et navigation */
+a:not(.btn):not(.nav__link),
+.nav__link:hover,
+.nav__link--active {
+  color: var(--tc-petrole);
+}
+
+.nav-group__toggle {
+  color: var(--tc-graphite);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Contour de focus, comme sur le site. */
+*:focus-visible {
+  outline: 2px solid var(--tc-cyan);
+  outline-offset: 2px;
+}
+
+/* Le logo suit le thème choisi dans l'administration. */
+.tc-logo--sombre {
+  display: none;
+}
+
+html[data-theme='dark'] {
+  .tc-logo--clair {
+    display: none;
+  }
+
+  .tc-logo--sombre {
+    display: block;
+  }
+}

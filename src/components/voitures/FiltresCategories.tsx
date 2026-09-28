@@ -6,7 +6,7 @@ const classeFiltre = (actif: boolean) =>
   `rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
     actif
       ? 'border-primaire bg-primaire text-primaire-contraste'
-      : 'border-bordure text-texte-doux hover:text-texte'
+      : 'border-bordure text-texte-doux hover:border-petrole hover:text-texte'
   }`
 
 /** `base` est la page qui porte les filtres : /location ou /vente. */

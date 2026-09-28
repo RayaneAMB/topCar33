@@ -22,14 +22,11 @@ export function SectionApercu({
 }) {
   return (
     <section id={id} aria-labelledby={`${id}-titre`} className="mx-auto max-w-6xl scroll-mt-8 px-4 py-12">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h2 id={`${id}-titre`} className="text-2xl font-extrabold">
+      <div className="mb-7 flex flex-wrap items-center justify-between gap-4 border-b border-bordure pb-4">
+        <h2 id={`${id}-titre`} className="text-2xl">
           {titre}
         </h2>
-        <Link
-          href={lien}
-          className="rounded-lg border border-primaire px-4 py-2 text-sm font-semibold text-primaire hover:bg-primaire hover:text-primaire-contraste"
-        >
+        <Link href={lien} className="text-sm font-semibold text-primaire underline-offset-4 transition hover:underline">
           {libelleLien}
         </Link>
       </div>

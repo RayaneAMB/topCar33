@@ -54,16 +54,18 @@ export default async function PageVoiture({ params }: Params) {
         <GaleriePhotos photos={photosGalerie(voiture.photos)} titre={titre} />
 
         <div>
-          {categorie && <p className="text-xs font-bold uppercase tracking-widest text-primaire">{categorie}</p>}
-          <h1 className="mt-1 text-3xl font-extrabold sm:text-4xl">{titre}</h1>
-          <BadgeDispo
-            offre={voiture.offre}
-            disponible={voiture.disponible !== false}
-            className="mt-3 inline-block"
-          />
-          <p className="mt-6 text-3xl font-extrabold">
+          <div className="flex flex-wrap items-center gap-3">
+            <BadgeDispo offre={voiture.offre} disponible={voiture.disponible !== false} />
+            {categorie && (
+              <span className="rounded-full border border-bordure px-2.5 py-1 text-xs font-semibold text-texte-doux">
+                {categorie}
+              </span>
+            )}
+          </div>
+          <h1 className="mt-4 text-3xl sm:text-4xl">{titre}</h1>
+          <p className="mt-6 font-titre text-3xl font-bold tracking-wide text-primaire">
             {prix.valeur}
-            {prix.suffixe && <span className="text-base font-medium text-texte-doux"> {prix.suffixe}</span>}
+            {prix.suffixe && <span className="font-texte text-base font-medium text-texte-doux"> {prix.suffixe}</span>}
           </p>
 
           <div className="mt-8">
@@ -80,7 +82,7 @@ export default async function PageVoiture({ params }: Params) {
 
           <Link
             href={`/contact?voiture=${voiture.slug}`}
-            className="mt-8 inline-block rounded-lg bg-primaire px-6 py-3 font-semibold text-primaire-contraste hover:opacity-90"
+            className="mt-8 inline-block rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
           >
             Contacter pour ce véhicule
           </Link>
@@ -88,8 +90,8 @@ export default async function PageVoiture({ params }: Params) {
       </div>
 
       {voiture.description && (
-        <section aria-labelledby="titre-description" className="mt-12 max-w-3xl">
-          <h2 id="titre-description" className="text-2xl font-extrabold">
+        <section aria-labelledby="titre-description" className="mt-14 max-w-3xl">
+          <h2 id="titre-description" className="text-xl">
             Description
           </h2>
           <RichTexte data={voiture.description} className="mt-4 text-texte-doux" />

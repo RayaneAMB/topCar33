@@ -26,6 +26,13 @@ export default buildConfig({
     },
     meta: {
       titleSuffix: ' — TopCar33 Administration',
+      icons: [{ rel: 'icon', type: 'image/png', url: '/favicon-32x32.png' }],
+    },
+    components: {
+      graphics: {
+        Logo: '/components/admin/LogoAdmin#LogoAdmin',
+        Icon: '/components/admin/IconeAdmin#IconeAdmin',
+      },
     },
   },
   collections: [Voitures, Categories, Media, Demandes, Users],

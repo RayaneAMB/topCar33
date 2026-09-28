@@ -17,7 +17,9 @@ test.describe('Accueil', () => {
     await expect(carte).toBeVisible()
     await expect(carte).toContainText(E2E.categorie)
     await expect(carte).toContainText('Disponible')
-    await expect(carte).toContainText('Automatique · Électrique · 4 places')
+    for (const point of ['Automatique', 'Électrique', '4 places']) {
+      await expect(carte).toContainText(point)
+    }
     await expect(carte).toContainText('12')
     await expect(carte.getByRole('link', { name: 'Contacter' })).toHaveAttribute(
       'href',
@@ -27,7 +29,7 @@ test.describe('Accueil', () => {
 
   test('un clic sur la carte ouvre la fiche de la voiture', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: `${E2E.marque} ${E2E.modele}`, exact: true }).click()
+    await page.getByRole('link', { name: `${E2E.marque} ${E2E.modele}` }).first().click()
     await expect(page).toHaveURL(/\/voitures\/e2e-testmobile$/)
   })
 })

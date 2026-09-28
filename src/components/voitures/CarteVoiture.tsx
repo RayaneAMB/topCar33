@@ -2,9 +2,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Voiture } from '@/payload-types'
-import { nomCategorie, premierePhoto, prixPrincipal, resumeCarte, urlPhoto } from '@/lib/format'
+import { nomCategorie, premierePhoto, prixPrincipal, urlPhoto } from '@/lib/format'
 
 import { BadgeDispo } from './BadgeDispo'
+import { PointsVoiture } from './PointsVoiture'
 
 export function CarteVoiture({ voiture }: { voiture: Voiture }) {
   const photo = premierePhoto(voiture.photos)
@@ -28,29 +29,33 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
             className="object-cover"
           />
         )}
-        <BadgeDispo
-          offre={voiture.offre}
-          disponible={voiture.disponible !== false}
-          className="absolute left-3 top-3"
-        />
+        <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+          <BadgeDispo offre={voiture.offre} disponible={voiture.disponible !== false} />
+          {categorie && (
+            <span className="rounded-full bg-fond/85 px-2.5 py-1 text-xs font-semibold text-texte backdrop-blur">
+              {categorie}
+            </span>
+          )}
+        </div>
       </div>
+
       <div className="flex flex-1 flex-col p-4">
-        {categorie && <p className="text-xs font-bold uppercase tracking-widest text-primaire">{categorie}</p>}
-        <h3 className="mt-1 text-lg font-bold">
+        <h3 className="text-base">
           {/* Lien « étiré » : toute la carte est cliquable. */}
           <Link href={`/voitures/${voiture.slug}`} className="after:absolute after:inset-0">
             {titre}
           </Link>
         </h3>
-        <p className="mt-1 text-sm text-texte-doux">{resumeCarte(voiture)}</p>
-        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-          <p className="text-xl font-extrabold">
+        <PointsVoiture voiture={voiture} />
+
+        <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+          <p className="font-titre text-xl font-bold tracking-wide">
             {prix.valeur}
-            {prix.suffixe && <span className="text-sm font-medium text-texte-doux"> {prix.suffixe}</span>}
+            {prix.suffixe && <span className="font-texte text-sm font-medium text-texte-doux"> {prix.suffixe}</span>}
           </p>
           <Link
             href={`/contact?voiture=${voiture.slug}`}
-            className="relative z-10 rounded-lg border border-primaire px-3 py-1.5 text-sm font-semibold text-primaire hover:bg-primaire hover:text-primaire-contraste"
+            className="relative z-10 rounded-carte border border-petrole px-3 py-1.5 text-sm font-semibold text-primaire transition hover:bg-primaire hover:text-primaire-contraste"
           >
             Contacter
           </Link>

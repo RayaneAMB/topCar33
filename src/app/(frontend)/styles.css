@@ -1,28 +1,55 @@
 @import 'tailwindcss';
 
 /* ============================================================================
-   THÈME DU SITE : c'est le SEUL endroit à modifier pour appliquer la charte
-   graphique (couleurs, polices, arrondis). Thème provisoire : « Premium sombre ».
+   CHARTE GRAPHIQUE TOPCAR33
+   Couleurs, polices et arrondis de la marque. C'est le seul endroit à modifier
+   pour faire évoluer l'habillage du site.
    ============================================================================ */
+
+/* Bank Gothic : la police du logo, réservée aux titres. */
+@font-face {
+  font-family: 'Bank Gothic';
+  src: url('/polices/BankGothic-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bank Gothic';
+  src: url('/polices/BankGothic-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --color-fond: #0e0f12;
-  --color-fond-alt: #08090b;
-  --color-surface: #17191e;
-  --color-bordure: #2a2d33;
-  --color-texte: #f2f2f2;
-  --color-texte-doux: #9aa0a6;
-  --color-primaire: #d4a24c;
-  --color-primaire-contraste: #111111;
-  --color-succes: #6fdc9a;
-  --color-succes-fond: #173524;
+  /* Fonds : anthracite de la marque, assombri pour le confort de lecture. */
+  --color-fond: #0d1011;
+  --color-fond-alt: #080a0b;
+  --color-surface: #282d2e; /* anthracite #282D2E */
+  --color-bordure: #3a4041;
+
+  /* Textes : blanc cassé et gris graphite éclairci (contraste AA sur le fond). */
+  --color-texte: #f4f6f6;
+  --color-texte-doux: #a9aeaf;
+
+  /* Cyan électrique : uniquement ce sur quoi on peut agir (boutons, survol, focus). */
+  --color-primaire: #00c2d4;
+  --color-primaire-contraste: #06181c;
+  /* Bleu pétrole : la structure (liens, filets, aplats calmes). */
+  --color-petrole: #0196ae;
+
+  --color-succes: #4fd98f;
+  --color-succes-fond: #10322a;
   --color-danger: #ff8a80;
   --color-danger-fond: #3a1d1d;
 
-  /* Polices chargées dans layout.tsx (paquets @fontsource-variable). */
-  --font-titre: 'Montserrat Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-texte: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-titre: 'Bank Gothic', 'Montserrat Variable', ui-sans-serif, sans-serif;
+  --font-texte: 'Montserrat Variable', ui-sans-serif, system-ui, sans-serif;
 
-  --radius-carte: 0.75rem;
+  /* La marque est anguleuse : arrondis discrets. */
+  --radius-carte: 0.375rem;
 }
 
 @layer base {
@@ -32,10 +59,14 @@
     font-family: var(--font-texte);
   }
 
+  /* Les titres prolongent le mot-symbole du logo : capitales espacées. */
   h1,
   h2,
   h3 {
     font-family: var(--font-titre);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   :focus-visible {
@@ -44,18 +75,51 @@
   }
 }
 
+/* La coupe en biais des lettres du logo, reprise comme signature. */
+.barre-diagonale {
+  display: block;
+  width: 3.5rem;
+  height: 0.375rem;
+  background-color: var(--color-primaire);
+  transform: skewX(-20deg);
+}
+
+/* Trait de lumière en diagonale de la bannière d'accueil. */
+.bandeau {
+  position: relative;
+  overflow: hidden;
+}
+
+.bandeau::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -12%;
+  width: 34rem;
+  height: 160%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-petrole) 45%, transparent), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .bandeau::after {
+    width: 18rem;
+    opacity: 0.6;
+  }
+}
+
 /* Contenu riche saisi dans l'admin (description des voitures, pages légales). */
 .contenu-riche p {
   margin-block: 0.75em;
+  max-width: 68ch;
 }
 .contenu-riche h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.4rem;
   margin-block: 1.25em 0.5em;
 }
 .contenu-riche h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.15rem;
   margin-block: 1em 0.5em;
 }
 .contenu-riche ul {

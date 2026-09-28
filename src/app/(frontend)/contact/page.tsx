@@ -34,10 +34,11 @@ export default async function PageContact({
   return (
     <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 lg:grid-cols-[2fr_1fr]">
       <section aria-labelledby="titre-contact">
-        <h1 id="titre-contact" className="text-3xl font-extrabold">
+        <span className="barre-diagonale" aria-hidden="true" />
+        <h1 id="titre-contact" className="mt-5 text-3xl">
           Nous contacter
         </h1>
-        <p className="mt-2 mb-8 text-texte-doux">
+        <p className="mt-3 mb-9 max-w-xl text-texte-doux">
           Une question sur une voiture ou une demande de location ? Écrivez-nous, nous vous répondons rapidement.
         </p>
         <FormulaireContact action={envoyerDemande} voitures={options} voitureInitiale={voitureInitiale} />

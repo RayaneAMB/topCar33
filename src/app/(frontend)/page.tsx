@@ -14,22 +14,23 @@ export default async function Accueil() {
 
   return (
     <>
-      <section className="border-b border-bordure bg-linear-to-br from-primaire/15 via-fond to-fond">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
-          <h1 className="max-w-2xl text-4xl font-extrabold uppercase leading-tight tracking-wide sm:text-5xl">
+      <section className="bandeau border-b border-bordure bg-fond-alt">
+        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:py-28">
+          <span className="barre-diagonale" aria-hidden="true" />
+          <h1 className="mt-6 max-w-2xl text-4xl leading-tight sm:text-5xl">
             {agence.accroche || 'Louez la voiture qu’il vous faut.'}
           </h1>
-          {agence.sousAccroche && <p className="mt-4 max-w-xl text-lg text-texte-doux">{agence.sousAccroche}</p>}
-          <div className="mt-8 flex flex-wrap gap-3">
+          {agence.sousAccroche && <p className="mt-5 max-w-lg text-lg text-texte-doux">{agence.sousAccroche}</p>}
+          <div className="mt-9 flex flex-wrap gap-3">
             <Link
               href="/location"
-              className="rounded-lg bg-primaire px-6 py-3 font-semibold text-primaire-contraste hover:opacity-90"
+              className="rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
             >
               Voir les voitures à louer
             </Link>
             <Link
               href="/vente"
-              className="rounded-lg border border-primaire px-6 py-3 font-semibold text-primaire hover:bg-primaire hover:text-primaire-contraste"
+              className="rounded-carte border border-petrole px-6 py-3 font-semibold text-primaire transition hover:bg-primaire hover:text-primaire-contraste"
             >
               Voir les voitures à vendre
             </Link>

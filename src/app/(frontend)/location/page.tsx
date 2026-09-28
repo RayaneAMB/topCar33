@@ -23,8 +23,11 @@ export default async function PageLocation({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-3xl font-extrabold sm:text-4xl">Nos voitures à louer</h1>
-      <p className="mt-2 mb-8 text-texte-doux">Des véhicules récents et entretenus, du citadin à l’utilitaire.</p>
+      <span className="barre-diagonale" aria-hidden="true" />
+      <h1 className="mt-5 text-3xl sm:text-4xl">Nos voitures à louer</h1>
+      <p className="mt-3 mb-9 max-w-xl text-texte-doux">
+        Des véhicules récents et entretenus, du citadin à l’utilitaire.
+      </p>
       <FiltresCategories base="/location" categories={categories} active={categorieActive?.slug ?? null} />
       <ListeVoitures voitures={voitures} vide="Aucune voiture à louer pour le moment." />
     </div>

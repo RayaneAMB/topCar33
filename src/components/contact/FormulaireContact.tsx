@@ -24,7 +24,7 @@ const GROUPES = [
 ]
 
 const classeChamp = (erreur?: string) =>
-  `mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-texte placeholder:text-texte-doux ${
+  `mt-1 w-full rounded-carte border bg-fond-alt px-3 py-2 text-texte transition placeholder:text-texte-doux focus:border-primaire ${
     erreur ? 'border-danger' : 'border-bordure'
   }`
 
@@ -159,7 +159,7 @@ export function FormulaireContact({ action, voitures, voitureInitiale }: Props) 
       <button
         type="submit"
         disabled={enCours}
-        className="rounded-lg bg-primaire px-6 py-3 font-semibold text-primaire-contraste hover:opacity-90 disabled:opacity-60"
+        className="rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte disabled:opacity-60"
       >
         {enCours ? 'Envoi…' : 'Envoyer ma demande'}
       </button>

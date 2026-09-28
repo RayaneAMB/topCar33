@@ -16,7 +16,9 @@ test.describe('Location et vente', () => {
     await expect(page).toHaveTitle(/À louer/)
     const carte = page.getByTestId('carte-voiture').filter({ hasText: `${E2E.marque} ${E2E.modele}` })
     await expect(carte).toContainText('/ jour')
-    await expect(carte).toContainText('Automatique · Électrique · 4 places')
+    for (const point of ['Automatique', 'Électrique', '4 places']) {
+      await expect(carte).toContainText(point)
+    }
     await expect(page.getByTestId('carte-voiture').filter({ hasText: E2E.modeleVente })).toHaveCount(0)
   })
 

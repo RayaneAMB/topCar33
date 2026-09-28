@@ -1,78 +1,92 @@
 import Link from 'next/link'
 
 import type { Agence } from '@/payload-types'
-import { adresseEnLigne, lienTelephone } from '@/lib/format'
+import { adresseEnLigne, lienItineraire, lienTelephone } from '@/lib/format'
+
+import { LogoMarque } from './LogoMarque'
 
 export function PiedDePage({ agence }: { agence: Agence }) {
   const nom = agence.nom || 'TopCar33'
   const adresse = adresseEnLigne(agence.adresse)
+  const itineraire = lienItineraire(agence.adresse)
 
   return (
-    <footer className="mt-16 border-t border-bordure bg-fond-alt">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-3">
+    <footer className="mt-20 border-t border-bordure bg-fond-alt">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 text-sm sm:grid-cols-3">
         <div>
-          <p className="font-titre text-lg font-extrabold uppercase">{nom}</p>
-          {adresse && <p className="mt-2 text-texte-doux">{adresse}</p>}
-          {agence.telephone && (
-            <p className="mt-1">
-              <a href={lienTelephone(agence.telephone)} className="hover:text-primaire">
-                {agence.telephone}
-              </a>
-            </p>
-          )}
-          {agence.emailPublic && (
-            <p className="mt-1">
-              <a href={`mailto:${agence.emailPublic}`} className="hover:text-primaire">
-                {agence.emailPublic}
-              </a>
+          <LogoMarque agence={agence} hauteur={40} />
+          {adresse && (
+            <p className="mt-5 text-texte-doux">
+              {adresse}
+              {itineraire && (
+                <>
+                  <br />
+                  <a href={itineraire} target="_blank" rel="noopener noreferrer" className="text-primaire underline">
+                    Itinéraire
+                  </a>
+                </>
+              )}
             </p>
           )}
         </div>
+
         <div>
-          <p className="font-semibold">Horaires</p>
-          {agence.horaires?.length ? (
-            <ul className="mt-2 space-y-1 text-texte-doux">
-              {agence.horaires.map((creneau) => (
-                <li key={creneau.id ?? creneau.jours}>
-                  {creneau.jours} : {creneau.heures}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-2 text-texte-doux">Sur rendez-vous</p>
-          )}
+          <h2 className="text-sm">Nous joindre</h2>
+          <ul className="mt-3 space-y-1 text-texte-doux">
+            {agence.telephone && (
+              <li>
+                <a href={lienTelephone(agence.telephone)} className="transition hover:text-primaire">
+                  {agence.telephone}
+                </a>
+              </li>
+            )}
+            {agence.emailPublic && (
+              <li>
+                <a href={`mailto:${agence.emailPublic}`} className="transition hover:text-primaire">
+                  {agence.emailPublic}
+                </a>
+              </li>
+            )}
+            {agence.horaires?.map((creneau) => (
+              <li key={creneau.id ?? creneau.jours}>
+                {creneau.jours} : {creneau.heures}
+              </li>
+            ))}
+          </ul>
         </div>
+
         <nav aria-label="Informations">
-          <p className="font-semibold">Informations</p>
-          <ul className="mt-2 space-y-1">
+          <h2 className="text-sm">Le site</h2>
+          <ul className="mt-3 space-y-1 text-texte-doux">
             <li>
-              <Link href="/location" className="text-texte-doux hover:text-texte">
+              <Link href="/location" className="transition hover:text-primaire">
                 Voitures à louer
               </Link>
             </li>
             <li>
-              <Link href="/vente" className="text-texte-doux hover:text-texte">
+              <Link href="/vente" className="transition hover:text-primaire">
                 Voitures à vendre
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="text-texte-doux hover:text-texte">
+              <Link href="/contact" className="transition hover:text-primaire">
                 Contact
               </Link>
             </li>
             <li>
-              <Link href="/mentions-legales" className="text-texte-doux hover:text-texte">
+              <Link href="/mentions-legales" className="transition hover:text-primaire">
                 Mentions légales
               </Link>
             </li>
             <li>
-              <Link href="/confidentialite" className="text-texte-doux hover:text-texte">
+              <Link href="/confidentialite" className="transition hover:text-primaire">
                 Confidentialité
               </Link>
             </li>
           </ul>
         </nav>
       </div>
+
       <p className="border-t border-bordure py-4 text-center text-xs text-texte-doux">
         © {new Date().getFullYear()} {nom}
       </p>
