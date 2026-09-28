@@ -67,13 +67,35 @@ describe('traiterDemande', () => {
     expect(versAgence).toMatchObject({
       to: 'demandes@topcar33.example',
       replyTo: 'jean@exemple.fr',
-      subject: 'Nouvelle demande — Jean Dupont (Peugeot 208)',
+      subject: 'Nouvelle demande de location — Jean Dupont (Peugeot 208)',
     })
     expect(String(versAgence.html)).toContain(`${URL_SITE}/admin/collections/demandes/${docs[0].id}`)
     expect(versClient).toMatchObject({
       to: 'jean@exemple.fr',
       subject: 'Votre demande a bien été reçue — TopCar33',
     })
+  })
+
+  it('enregistre la nature de la demande selon l’offre de la voiture', async () => {
+    const aVendre = await creerVoiture(payload, { offre: 'vente', marque: 'Peugeot', modele: '308' })
+    const envoi = vi.spyOn(payload, 'sendEmail').mockResolvedValue(undefined)
+
+    await traiterDemande(payload, brutValide({ voiture: aVendre.slug ?? '' }), { urlSite: URL_SITE })
+
+    const { docs } = await payload.find({ collection: 'demandes', depth: 0 })
+    expect(docs[0].nature).toBe('vente')
+    expect(envoi.mock.calls[0][0]).toMatchObject({
+      subject: 'Nouvelle demande d’achat — Jean Dupont (Peugeot 308)',
+    })
+  })
+
+  it('une demande sans voiture est une question générale', async () => {
+    vi.spyOn(payload, 'sendEmail').mockResolvedValue(undefined)
+
+    await traiterDemande(payload, brutValide(), { urlSite: URL_SITE })
+
+    const { docs } = await payload.find({ collection: 'demandes', depth: 0 })
+    expect(docs[0].nature).toBe('generale')
   })
 
   it('garde la demande si le mail à l’agence échoue', async () => {

@@ -6,14 +6,17 @@ import { RichTexte } from '@/components/RichTexte'
 import { BadgeDispo } from '@/components/voitures/BadgeDispo'
 import { Caracteristiques } from '@/components/voitures/Caracteristiques'
 import { GaleriePhotos } from '@/components/voitures/GaleriePhotos'
-import { TableauTarifs } from '@/components/voitures/TableauTarifs'
+import { TableauInfos } from '@/components/voitures/TableauInfos'
 import { getVoiture } from '@/lib/donnees'
 import {
   descriptionVoiture,
-  formaterPrix,
+  estAVendre,
+  lignesTarifs,
+  lignesVente,
   nomCategorie,
   photosGalerie,
   premierePhoto,
+  prixPrincipal,
   urlPhoto,
 } from '@/lib/format'
 
@@ -38,11 +41,13 @@ export default async function PageVoiture({ params }: Params) {
 
   const titre = voiture.titre || `${voiture.marque} ${voiture.modele}`
   const categorie = nomCategorie(voiture.categorie)
+  const aVendre = estAVendre(voiture)
+  const prix = prixPrincipal(voiture)
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <Link href="/#voitures" className="text-sm text-texte-doux hover:text-texte">
-        ← Toutes nos voitures
+      <Link href={aVendre ? '/vente' : '/location'} className="text-sm text-texte-doux hover:text-texte">
+        {aVendre ? '← Toutes nos voitures à vendre' : '← Toutes nos voitures à louer'}
       </Link>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
@@ -51,9 +56,14 @@ export default async function PageVoiture({ params }: Params) {
         <div>
           {categorie && <p className="text-xs font-bold uppercase tracking-widest text-primaire">{categorie}</p>}
           <h1 className="mt-1 text-3xl font-extrabold sm:text-4xl">{titre}</h1>
-          <BadgeDispo disponible={voiture.disponible !== false} className="mt-3 inline-block" />
+          <BadgeDispo
+            offre={voiture.offre}
+            disponible={voiture.disponible !== false}
+            className="mt-3 inline-block"
+          />
           <p className="mt-6 text-3xl font-extrabold">
-            {formaterPrix(voiture.tarifs.prixJour)} <span className="text-base font-medium text-texte-doux">/ jour</span>
+            {prix.valeur}
+            {prix.suffixe && <span className="text-base font-medium text-texte-doux"> {prix.suffixe}</span>}
           </p>
 
           <div className="mt-8">
@@ -61,7 +71,11 @@ export default async function PageVoiture({ params }: Params) {
           </div>
 
           <div className="mt-8">
-            <TableauTarifs tarifs={voiture.tarifs} />
+            {aVendre ? (
+              <TableauInfos titre="Le véhicule" lignes={lignesVente(voiture.vente)} />
+            ) : (
+              <TableauInfos titre="Tarifs" lignes={lignesTarifs(voiture.tarifs)} />
+            )}
           </div>
 
           <Link

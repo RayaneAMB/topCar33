@@ -52,6 +52,7 @@ describe('Collection voitures', () => {
       payload.create({
         collection: 'voitures',
         data: {
+          offre: 'location',
           marque: 'Fiat',
           modele: '500',
           categorie: categorie.id,
@@ -61,6 +62,63 @@ describe('Collection voitures', () => {
         },
       }),
     ).rejects.toThrow()
+  })
+
+  it('une voiture est « à louer » par défaut', async () => {
+    const voiture = await creerVoiture(payload)
+    expect(voiture.offre).toBe('location')
+  })
+
+  it('une voiture à vendre s’enregistre avec prix, année et kilométrage, sans prix par jour', async () => {
+    const voiture = await creerVoiture(payload, {
+      offre: 'vente',
+      marque: 'Peugeot',
+      modele: '308',
+      prixVente: 12900,
+      annee: 2019,
+      kilometrage: 68000,
+    })
+    expect(voiture.offre).toBe('vente')
+    expect(voiture.vente?.prix).toBe(12900)
+    expect(voiture.vente?.annee).toBe(2019)
+    expect(voiture.vente?.kilometrage).toBe(68000)
+    expect(voiture.tarifs?.prixJour ?? null).toBeNull()
+  })
+
+  it('refuse une voiture à vendre sans prix de vente', async () => {
+    const categorie = await creerCategorie(payload, 'Citadine')
+    const photo = await creerImage(payload, 'Sans prix', 900, 600)
+    await expect(
+      payload.create({
+        collection: 'voitures',
+        data: {
+          offre: 'vente',
+          marque: 'Fiat',
+          modele: '500',
+          categorie: categorie.id,
+          photos: [photo.id],
+          caracteristiques: { boite: 'manuelle', carburant: 'essence', places: 4 },
+        },
+      }),
+    ).rejects.toThrow(/prix de vente/i)
+  })
+
+  it('refuse une voiture à louer sans prix par jour', async () => {
+    const categorie = await creerCategorie(payload, 'Berline')
+    const photo = await creerImage(payload, 'Sans tarif', 900, 600)
+    await expect(
+      payload.create({
+        collection: 'voitures',
+        data: {
+          offre: 'location',
+          marque: 'Fiat',
+          modele: 'Panda',
+          categorie: categorie.id,
+          photos: [photo.id],
+          caracteristiques: { boite: 'manuelle', carburant: 'essence', places: 4 },
+        },
+      }),
+    ).rejects.toThrow(/prix par jour/i)
   })
 
   it('un visiteur anonyme peut lire les voitures', async () => {
@@ -73,6 +131,7 @@ describe('Collection voitures', () => {
     const categorie = await creerCategorie(payload, 'SUV')
     const photo = await creerImage(payload, 'Duster', 900, 600)
     const donnees = {
+      offre: 'location' as const,
       marque: 'Dacia',
       modele: 'Duster',
       categorie: categorie.id,

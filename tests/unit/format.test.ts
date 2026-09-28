@@ -3,16 +3,22 @@ import { describe, expect, it } from 'vitest'
 import {
   adresseEnLigne,
   descriptionVoiture,
+  estAVendre,
+  formaterKilometrage,
   formaterPrix,
+  libelleDisponibilite,
   lienItineraire,
   lienTelephone,
   lignesTarifs,
+  lignesVente,
   photosGalerie,
   premierePhoto,
+  prixPrincipal,
+  resumeCarte,
   resumeCaracteristiques,
   urlPhoto,
 } from '@/lib/format'
-import type { Categorie, Media } from '@/payload-types'
+import type { Categorie, Media, Voiture } from '@/payload-types'
 
 /** Intl utilise des espaces insécables : on les normalise pour comparer. */
 const espaces = (texte: string) => texte.replace(/\s/g, ' ')
@@ -78,14 +84,70 @@ describe('photos', () => {
   })
 })
 
-describe('descriptionVoiture', () => {
-  it('résume catégorie, prix et caractéristiques (pour le SEO)', () => {
-    const texte = descriptionVoiture({
-      categorie: suv,
-      caracteristiques: { boite: 'manuelle', carburant: 'diesel', places: 5 },
-      tarifs: { prixJour: 49 },
-    })
-    expect(espaces(texte)).toBe('SUV · 49 € / jour · Manuelle · Diesel · 5 places')
+const aLouer = {
+  offre: 'location',
+  categorie: suv,
+  caracteristiques: { boite: 'manuelle', carburant: 'diesel', places: 5 },
+  tarifs: { prixJour: 49, prixSemaine: 300 },
+} as Voiture
+
+const aVendre = {
+  offre: 'vente',
+  categorie: suv,
+  caracteristiques: { boite: 'manuelle', carburant: 'diesel', places: 5 },
+  vente: { prix: 12900, annee: 2019, kilometrage: 68000 },
+} as Voiture
+
+describe('offre location / vente', () => {
+  it('estAVendre ne vaut vrai que pour une voiture à vendre', () => {
+    expect(estAVendre(aVendre)).toBe(true)
+    expect(estAVendre(aLouer)).toBe(false)
+    // Voiture enregistrée avant l'ajout du champ : considérée comme « à louer ».
+    expect(estAVendre({} as Voiture)).toBe(false)
+  })
+
+  it('prixPrincipal affiche le prix par jour ou le prix de vente', () => {
+    const location = prixPrincipal(aLouer)
+    expect([espaces(location.valeur), location.suffixe]).toEqual(['49 €', '/ jour'])
+    const vente = prixPrincipal(aVendre)
+    expect([espaces(vente.valeur), vente.suffixe]).toEqual(['12 900 €', null])
+  })
+
+  it('prixPrincipal reste lisible quand le prix manque', () => {
+    expect(prixPrincipal({ offre: 'vente' } as Voiture)).toEqual({ valeur: 'Prix sur demande', suffixe: null })
+  })
+
+  it('libelleDisponibilite s’adapte à l’offre', () => {
+    expect(libelleDisponibilite('location', true)).toBe('Disponible')
+    expect(libelleDisponibilite('location', false)).toBe('Déjà louée')
+    expect(libelleDisponibilite('vente', true)).toBe('Disponible')
+    expect(libelleDisponibilite('vente', false)).toBe('Vendue')
+  })
+
+  it('formaterKilometrage met les milliers en forme', () => {
+    expect(espaces(formaterKilometrage(68000))).toBe('68 000 km')
+  })
+
+  it('resumeCarte montre la boîte en location, l’année et les km en vente', () => {
+    expect(resumeCarte(aLouer)).toBe('Manuelle · Diesel · 5 places')
+    expect(espaces(resumeCarte(aVendre))).toBe('2019 · 68 000 km · Diesel')
+  })
+
+  it('lignesVente ne garde que les informations renseignées', () => {
+    expect(lignesVente(aVendre.vente).map(({ libelle, valeur }) => [libelle, espaces(valeur)])).toEqual([
+      ['Année', '2019'],
+      ['Kilométrage', '68 000 km'],
+    ])
+    expect(lignesVente({ prix: 9000 })).toEqual([])
+  })
+
+  it('lignesTarifs renvoie une liste vide sans tarif de location', () => {
+    expect(lignesTarifs(aVendre.tarifs)).toEqual([])
+  })
+
+  it('descriptionVoiture s’adapte à l’offre', () => {
+    expect(espaces(descriptionVoiture(aLouer))).toBe('SUV · 49 € / jour · Manuelle · Diesel · 5 places')
+    expect(espaces(descriptionVoiture(aVendre))).toBe('SUV · 12 900 € · 2019 · 68 000 km · Diesel')
   })
 })
 

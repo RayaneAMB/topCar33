@@ -40,6 +40,15 @@ describe('mailAgence', () => {
     expect(text).toContain('Bonjour,\nest-elle libre samedi ?')
   })
 
+  it('précise la nature de la demande dans l’objet', () => {
+    expect(mailAgence({ ...demande, nature: 'location' }, URL_ADMIN).subject).toBe(
+      'Nouvelle demande de location — Jean Dupont (Peugeot 208)',
+    )
+    expect(mailAgence({ ...demande, nature: 'vente', voiture: 'Peugeot 308' }, URL_ADMIN).subject).toBe(
+      'Nouvelle demande d’achat — Jean Dupont (Peugeot 308)',
+    )
+  })
+
   it('indique « Question générale » quand aucune voiture n’est choisie', () => {
     const { subject, html } = mailAgence({ ...demande, voiture: undefined }, URL_ADMIN)
     expect(subject).toBe('Nouvelle demande — Jean Dupont')

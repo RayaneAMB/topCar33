@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Voiture } from '@/payload-types'
-import { formaterPrix, nomCategorie, premierePhoto, resumeCaracteristiques, urlPhoto } from '@/lib/format'
+import { nomCategorie, premierePhoto, prixPrincipal, resumeCarte, urlPhoto } from '@/lib/format'
 
 import { BadgeDispo } from './BadgeDispo'
 
@@ -11,6 +11,7 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
   const src = urlPhoto(photo, 'carte')
   const categorie = nomCategorie(voiture.categorie)
   const titre = voiture.titre || `${voiture.marque} ${voiture.modele}`
+  const prix = prixPrincipal(voiture)
 
   return (
     <article
@@ -27,7 +28,11 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
             className="object-cover"
           />
         )}
-        <BadgeDispo disponible={voiture.disponible !== false} className="absolute left-3 top-3" />
+        <BadgeDispo
+          offre={voiture.offre}
+          disponible={voiture.disponible !== false}
+          className="absolute left-3 top-3"
+        />
       </div>
       <div className="flex flex-1 flex-col p-4">
         {categorie && <p className="text-xs font-bold uppercase tracking-widest text-primaire">{categorie}</p>}
@@ -37,10 +42,11 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
             {titre}
           </Link>
         </h3>
-        <p className="mt-1 text-sm text-texte-doux">{resumeCaracteristiques(voiture.caracteristiques)}</p>
+        <p className="mt-1 text-sm text-texte-doux">{resumeCarte(voiture)}</p>
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <p className="text-xl font-extrabold">
-            {formaterPrix(voiture.tarifs.prixJour)} <span className="text-sm font-medium text-texte-doux">/ jour</span>
+            {prix.valeur}
+            {prix.suffixe && <span className="text-sm font-medium text-texte-doux"> {prix.suffixe}</span>}
           </p>
           <Link
             href={`/contact?voiture=${voiture.slug}`}

@@ -9,16 +9,25 @@ const classeFiltre = (actif: boolean) =>
       : 'border-bordure text-texte-doux hover:text-texte'
   }`
 
-export function FiltresCategories({ categories, active }: { categories: Categorie[]; active: string | null }) {
+/** `base` est la page qui porte les filtres : /location ou /vente. */
+export function FiltresCategories({
+  base,
+  categories,
+  active,
+}: {
+  base: string
+  categories: Categorie[]
+  active: string | null
+}) {
   return (
     <nav aria-label="Filtrer par catégorie" className="mb-8 flex flex-wrap gap-2">
-      <Link href="/#voitures" className={classeFiltre(active === null)} aria-current={active === null ? 'page' : undefined}>
+      <Link href={base} className={classeFiltre(active === null)} aria-current={active === null ? 'page' : undefined}>
         Toutes
       </Link>
       {categories.map((categorie) => (
         <Link
           key={categorie.id}
-          href={`/?categorie=${encodeURIComponent(categorie.slug ?? '')}#voitures`}
+          href={`${base}?categorie=${encodeURIComponent(categorie.slug ?? '')}`}
           className={classeFiltre(active === categorie.slug)}
           aria-current={active === categorie.slug ? 'page' : undefined}
         >

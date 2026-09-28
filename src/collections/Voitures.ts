@@ -2,7 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 import { connecte, tousLesVisiteurs } from '../access'
 import { slugify, slugUnique } from '../lib/slug'
-import { BOITES, CARBURANTS } from '../lib/voitureOptions'
+import { BOITES, CARBURANTS, OFFRES } from '../lib/voitureOptions'
+
+const ANNEE_MAX = new Date().getFullYear() + 1
 
 export const Voitures: CollectionConfig = {
   slug: 'voitures',
@@ -10,7 +12,7 @@ export const Voitures: CollectionConfig = {
   labels: { singular: 'Voiture', plural: 'Voitures' },
   admin: {
     useAsTitle: 'titre',
-    defaultColumns: ['titre', 'categorie', 'disponible', 'updatedAt'],
+    defaultColumns: ['titre', 'offre', 'categorie', 'disponible', 'updatedAt'],
     listSearchableFields: ['marque', 'modele'],
     group: 'Catalogue',
   },
@@ -44,6 +46,18 @@ export const Voitures: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      name: 'offre',
+      label: 'Offre',
+      type: 'radio',
+      options: OFFRES,
+      defaultValue: 'location',
+      required: true,
+      admin: {
+        layout: 'horizontal',
+        description: 'À louer : tarifs de location. À vendre : prix de vente, année et kilométrage.',
+      },
+    },
     {
       type: 'row',
       fields: [
@@ -100,14 +114,51 @@ export const Voitures: CollectionConfig = {
       ],
     },
     {
-      name: 'tarifs',
-      label: 'Tarifs (€ TTC)',
+      name: 'vente',
+      label: 'Vente',
       type: 'group',
+      admin: { condition: (data) => data?.offre === 'vente' },
       fields: [
         {
           type: 'row',
           fields: [
-            { name: 'prixJour', label: 'Prix par jour', type: 'number', required: true, min: 0 },
+            {
+              name: 'prix',
+              label: 'Prix de vente',
+              type: 'number',
+              min: 0,
+              // Obligatoire uniquement pour une voiture à vendre.
+              validate: (valeur: number | number[] | null | undefined, { data }: { data?: { offre?: string } }) => {
+                if (data?.offre !== 'vente') return true
+                return typeof valeur === 'number' && valeur >= 0 ? true : 'Indiquez le prix de vente'
+              },
+            },
+            { name: 'annee', label: 'Année', type: 'number', min: 1950, max: ANNEE_MAX },
+            { name: 'kilometrage', label: 'Kilométrage (km)', type: 'number', min: 0 },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'tarifs',
+      label: 'Tarifs de location (€ TTC)',
+      type: 'group',
+      admin: { condition: (data) => data?.offre !== 'vente' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'prixJour',
+              label: 'Prix par jour',
+              type: 'number',
+              min: 0,
+              // Obligatoire uniquement pour une voiture à louer.
+              validate: (valeur: number | number[] | null | undefined, { data }: { data?: { offre?: string } }) => {
+                if (data?.offre === 'vente') return true
+                return typeof valeur === 'number' && valeur >= 0 ? true : 'Indiquez le prix par jour'
+              },
+            },
             { name: 'prixWeekend', label: 'Prix week-end', type: 'number', min: 0 },
             { name: 'prixSemaine', label: 'Prix semaine', type: 'number', min: 0 },
           ],

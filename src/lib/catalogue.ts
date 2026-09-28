@@ -1,16 +1,20 @@
-import type { Payload } from 'payload'
+import type { Payload, Where } from 'payload'
 
 import type { Agence, Categorie, PagesLegales, Voiture } from '@/payload-types'
+import type { OffreVoiture } from './format'
 
 export async function listerCategories(payload: Payload): Promise<Categorie[]> {
   const { docs } = await payload.find({ collection: 'categories', sort: 'nom', limit: 100, depth: 0 })
   return docs
 }
 
-/** Voitures triées par prix/jour croissant ; `categorieSlug` inconnu = toutes les voitures. */
+/**
+ * Voitures d'une offre, triées par leur prix croissant (prix/jour en location, prix de vente en vente).
+ * `categorieSlug` inconnu = toutes les voitures de l'offre.
+ */
 export async function listerVoitures(
   payload: Payload,
-  options: { categorieSlug?: string } = {},
+  options: { offre?: OffreVoiture; categorieSlug?: string; limite?: number } = {},
 ): Promise<{ voitures: Voiture[]; categorieActive: Categorie | null }> {
   let categorieActive: Categorie | null = null
   if (options.categorieSlug) {
@@ -23,11 +27,19 @@ export async function listerVoitures(
     categorieActive = docs[0] ?? null
   }
 
+  const filtres: Where[] = []
+  if (options.offre === 'vente') filtres.push({ offre: { equals: 'vente' } })
+  // « not_equals » attrape aussi les voitures enregistrées avant l'ajout du champ offre.
+  if (options.offre === 'location') filtres.push({ offre: { not_equals: 'vente' } })
+  if (categorieActive) filtres.push({ categorie: { equals: categorieActive.id } })
+
+  const triParPrix = options.offre === 'vente' ? 'vente.prix' : 'tarifs.prixJour'
+
   const { docs: voitures } = await payload.find({
     collection: 'voitures',
-    where: categorieActive ? { categorie: { equals: categorieActive.id } } : undefined,
-    sort: 'tarifs.prixJour',
-    limit: 100,
+    where: filtres.length ? { and: filtres } : undefined,
+    sort: options.offre ? triParPrix : 'titre',
+    limit: options.limite ?? 100,
     depth: 1,
   })
   return { voitures, categorieActive }

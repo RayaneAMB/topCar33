@@ -66,6 +66,10 @@ type OptionsVoiture = {
   categorie?: string
   prixJour?: number
   disponible?: boolean
+  offre?: 'location' | 'vente'
+  prixVente?: number
+  annee?: number
+  kilometrage?: number
 }
 
 let compteurCategories = 0
@@ -74,6 +78,7 @@ let compteurCategories = 0
 export async function creerVoiture(payload: Payload, options: OptionsVoiture = {}) {
   const marque = options.marque ?? 'Peugeot'
   const modele = options.modele ?? '208'
+  const offre = options.offre ?? 'location'
   let categorie = options.categorie
   if (!categorie) {
     compteurCategories += 1
@@ -83,12 +88,21 @@ export async function creerVoiture(payload: Payload, options: OptionsVoiture = {
   return payload.create({
     collection: 'voitures',
     data: {
+      offre,
       marque,
       modele,
       categorie,
       photos: [photo.id],
       caracteristiques: { boite: 'manuelle', carburant: 'essence', places: 5 },
-      tarifs: { prixJour: options.prixJour ?? 35 },
+      tarifs: offre === 'location' ? { prixJour: options.prixJour ?? 35 } : undefined,
+      vente:
+        offre === 'vente'
+          ? {
+              prix: options.prixVente ?? 12900,
+              annee: options.annee ?? 2019,
+              kilometrage: options.kilometrage ?? 68000,
+            }
+          : undefined,
       disponible: options.disponible ?? true,
     },
   })

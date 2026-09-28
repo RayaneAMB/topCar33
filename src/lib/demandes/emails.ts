@@ -1,5 +1,7 @@
 import { escapeHtml } from '../escapeHtml'
 
+export type NatureDemande = 'location' | 'vente' | 'generale'
+
 export type DemandeMail = {
   id: string
   prenom: string
@@ -11,6 +13,13 @@ export type DemandeMail = {
   ville: string
   message: string
   voiture?: string
+  nature?: NatureDemande
+}
+
+const OBJETS: Record<NatureDemande, string> = {
+  location: 'Nouvelle demande de location',
+  vente: 'Nouvelle demande d’achat',
+  generale: 'Nouvelle demande',
 }
 
 export type AgenceMail = {
@@ -71,7 +80,8 @@ export function mailAgence(demande: DemandeMail, urlAdmin: string): ContenuMail 
   ].join('\n')
 
   const voiture = demande.voiture ? ` (${demande.voiture})` : ''
-  return { subject: `Nouvelle demande — ${demande.prenom} ${demande.nom}${voiture}`, html, text }
+  const objet = OBJETS[demande.nature ?? 'generale']
+  return { subject: `${objet} — ${demande.prenom} ${demande.nom}${voiture}`, html, text }
 }
 
 /** Accusé de réception envoyé au client. */

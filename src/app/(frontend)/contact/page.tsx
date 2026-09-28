@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { FormulaireContact } from '@/components/contact/FormulaireContact'
 import { NousTrouver } from '@/components/contact/NousTrouver'
 import { getAgence, getVoitures } from '@/lib/donnees'
+import { estAVendre } from '@/lib/format'
 
 import { envoyerDemande } from './actions'
 
@@ -21,7 +22,11 @@ export default async function PageContact({
 
   const options = voitures
     .filter((item) => item.slug)
-    .map((item) => ({ slug: item.slug as string, titre: item.titre || `${item.marque} ${item.modele}` }))
+    .map((item) => ({
+      slug: item.slug as string,
+      titre: item.titre || `${item.marque} ${item.modele}`,
+      offre: estAVendre(item) ? ('vente' as const) : ('location' as const),
+    }))
     .sort((a, b) => a.titre.localeCompare(b.titre, 'fr'))
   const voitureInitiale =
     typeof voiture === 'string' && options.some((option) => option.slug === voiture) ? voiture : ''

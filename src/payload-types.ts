@@ -135,6 +135,10 @@ export interface UserAuthOperations {
  */
 export interface Voiture {
   id: string;
+  /**
+   * À louer : tarifs de location. À vendre : prix de vente, année et kilométrage.
+   */
+  offre: 'location' | 'vente';
   marque: string;
   modele: string;
   categorie: string | Categorie;
@@ -164,8 +168,13 @@ export interface Voiture {
     portes?: number | null;
     climatisation?: boolean | null;
   };
-  tarifs: {
-    prixJour: number;
+  vente?: {
+    prix?: number | null;
+    annee?: number | null;
+    kilometrage?: number | null;
+  };
+  tarifs?: {
+    prixJour?: number | null;
     prixWeekend?: number | null;
     prixSemaine?: number | null;
     caution?: number | null;
@@ -265,6 +274,10 @@ export interface Demande {
    */
   voiture?: (string | null) | Voiture;
   message: string;
+  /**
+   * Déduite de l’offre de la voiture au moment de la demande.
+   */
+  nature?: ('location' | 'vente' | 'generale') | null;
   statut: 'nouvelle' | 'traitee';
   mailAgenceEnvoye?: boolean | null;
   mailClientEnvoye?: boolean | null;
@@ -392,6 +405,7 @@ export interface PayloadMigration {
  * via the `definition` "voitures_select".
  */
 export interface VoituresSelect<T extends boolean = true> {
+  offre?: T;
   marque?: T;
   modele?: T;
   categorie?: T;
@@ -405,6 +419,13 @@ export interface VoituresSelect<T extends boolean = true> {
         places?: T;
         portes?: T;
         climatisation?: T;
+      };
+  vente?:
+    | T
+    | {
+        prix?: T;
+        annee?: T;
+        kilometrage?: T;
       };
   tarifs?:
     | T
@@ -501,6 +522,7 @@ export interface DemandesSelect<T extends boolean = true> {
       };
   voiture?: T;
   message?: T;
+  nature?: T;
   statut?: T;
   mailAgenceEnvoye?: T;
   mailClientEnvoye?: T;

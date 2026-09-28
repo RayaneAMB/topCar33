@@ -1,18 +1,15 @@
-import { CarteVoiture } from '@/components/voitures/CarteVoiture'
-import { FiltresCategories } from '@/components/voitures/FiltresCategories'
-import { getAgence, getCategories, getVoitures } from '@/lib/donnees'
+import Link from 'next/link'
 
-export default async function Accueil({
-  searchParams,
-}: {
-  searchParams: Promise<{ categorie?: string | string[] }>
-}) {
-  const { categorie } = await searchParams
-  const categorieSlug = typeof categorie === 'string' ? categorie : undefined
-  const [agence, categories, { voitures, categorieActive }] = await Promise.all([
+import { SectionApercu } from '@/components/voitures/SectionApercu'
+import { getAgence, getVoitures } from '@/lib/donnees'
+
+const APERCU = 3
+
+export default async function Accueil() {
+  const [agence, location, vente] = await Promise.all([
     getAgence(),
-    getCategories(),
-    getVoitures(categorieSlug),
+    getVoitures('location', undefined, APERCU),
+    getVoitures('vente', undefined, APERCU),
   ])
 
   return (
@@ -23,32 +20,40 @@ export default async function Accueil({
             {agence.accroche || 'Louez la voiture qu’il vous faut.'}
           </h1>
           {agence.sousAccroche && <p className="mt-4 max-w-xl text-lg text-texte-doux">{agence.sousAccroche}</p>}
-          <a
-            href="#voitures"
-            className="mt-8 inline-block rounded-lg bg-primaire px-6 py-3 font-semibold text-primaire-contraste hover:opacity-90"
-          >
-            Voir nos voitures
-          </a>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/location"
+              className="rounded-lg bg-primaire px-6 py-3 font-semibold text-primaire-contraste hover:opacity-90"
+            >
+              Voir les voitures à louer
+            </Link>
+            <Link
+              href="/vente"
+              className="rounded-lg border border-primaire px-6 py-3 font-semibold text-primaire hover:bg-primaire hover:text-primaire-contraste"
+            >
+              Voir les voitures à vendre
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section id="voitures" aria-labelledby="titre-voitures" className="mx-auto max-w-6xl scroll-mt-8 px-4 py-12">
-        <h2 id="titre-voitures" className="mb-6 text-2xl font-extrabold">
-          Nos voitures
-        </h2>
-        <FiltresCategories categories={categories} active={categorieActive?.slug ?? null} />
-        {voitures.length === 0 ? (
-          <p className="text-texte-doux">Aucune voiture à afficher pour le moment.</p>
-        ) : (
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {voitures.map((voiture) => (
-              <li key={voiture.id}>
-                <CarteVoiture voiture={voiture} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <SectionApercu
+        id="a-louer"
+        titre="Nos voitures à louer"
+        lien="/location"
+        libelleLien="Voir toutes nos voitures à louer"
+        voitures={location.voitures}
+        vide="Aucune voiture à louer pour le moment."
+      />
+
+      <SectionApercu
+        id="a-vendre"
+        titre="Nos voitures à vendre"
+        lien="/vente"
+        libelleLien="Voir toutes nos voitures à vendre"
+        voitures={vente.voitures}
+        vide="Aucune voiture à vendre pour le moment."
+      />
     </>
   )
 }

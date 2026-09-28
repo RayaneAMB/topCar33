@@ -10,13 +10,18 @@ import {
   type EtatFormulaire,
 } from '@/lib/demandes/formulaire'
 
-type OptionVoiture = { slug: string; titre: string }
+type OptionVoiture = { slug: string; titre: string; offre: 'location' | 'vente' }
 
 type Props = {
   action: (etat: EtatFormulaire, formData: FormData) => Promise<EtatFormulaire>
   voitures: OptionVoiture[]
   voitureInitiale: string
 }
+
+const GROUPES = [
+  { offre: 'location' as const, label: 'À louer' },
+  { offre: 'vente' as const, label: 'À vendre' },
+]
 
 const classeChamp = (erreur?: string) =>
   `mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-texte placeholder:text-texte-doux ${
@@ -121,11 +126,19 @@ export function FormulaireContact({ action, voitures, voitureInitiale }: Props) 
         </label>
         <select id="voiture" name="voiture" defaultValue={valeurs.voiture ?? voitureInitiale} className={classeChamp()}>
           <option value="">Question générale</option>
-          {voitures.map((voiture) => (
-            <option key={voiture.slug} value={voiture.slug}>
-              {voiture.titre}
-            </option>
-          ))}
+          {GROUPES.map(({ offre, label }) => {
+            const duGroupe = voitures.filter((voiture) => voiture.offre === offre)
+            if (duGroupe.length === 0) return null
+            return (
+              <optgroup key={offre} label={label}>
+                {duGroupe.map((voiture) => (
+                  <option key={voiture.slug} value={voiture.slug}>
+                    {voiture.titre}
+                  </option>
+                ))}
+              </optgroup>
+            )
+          })}
         </select>
       </div>
 

@@ -8,7 +8,7 @@ export const Demandes: CollectionConfig = {
   labels: { singular: 'Demande de contact', plural: 'Demandes de contact' },
   admin: {
     useAsTitle: 'titre',
-    defaultColumns: ['titre', 'voiture', 'statut', 'createdAt'],
+    defaultColumns: ['titre', 'nature', 'voiture', 'statut', 'createdAt'],
     group: 'Demandes',
   },
   defaultSort: '-createdAt',
@@ -67,6 +67,22 @@ export const Demandes: CollectionConfig = {
       admin: { description: 'Vide = question générale.' },
     },
     { name: 'message', label: 'Message', type: 'textarea', required: true, maxLength: 2000 },
+    {
+      name: 'nature',
+      label: 'Nature de la demande',
+      type: 'select',
+      defaultValue: 'generale',
+      options: [
+        { label: 'Location', value: 'location' },
+        { label: 'Achat', value: 'vente' },
+        { label: 'Question générale', value: 'generale' },
+      ],
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Déduite de l’offre de la voiture au moment de la demande.',
+      },
+    },
     {
       name: 'statut',
       label: 'Statut',

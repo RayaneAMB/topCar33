@@ -8,6 +8,7 @@ export const E2E = {
   categorie: 'E2E Catégorie',
   marque: 'E2E',
   modele: 'Testmobile',
+  modeleVente: 'Vendmobile',
   altPhoto: 'Photo E2E',
   email: 'e2e@topcar33.example',
 }
@@ -41,6 +42,7 @@ export async function preparerDonneesE2E() {
   const voiture = await payload.create({
     collection: 'voitures',
     data: {
+      offre: 'location',
       marque: E2E.marque,
       modele: E2E.modele,
       categorie: categorie.id,
@@ -50,7 +52,25 @@ export async function preparerDonneesE2E() {
       disponible: true,
     },
   })
-  return { slugVoiture: voiture.slug as string, slugCategorie: categorie.slug as string, idVoiture: voiture.id }
+  const voitureVente = await payload.create({
+    collection: 'voitures',
+    data: {
+      offre: 'vente',
+      marque: E2E.marque,
+      modele: E2E.modeleVente,
+      categorie: categorie.id,
+      photos: [photo.id],
+      caracteristiques: { boite: 'manuelle', carburant: 'diesel', places: 5 },
+      vente: { prix: 9900, annee: 2020, kilometrage: 45000 },
+      disponible: true,
+    },
+  })
+  return {
+    slugVoiture: voiture.slug as string,
+    slugVoitureVente: voitureVente.slug as string,
+    slugCategorie: categorie.slug as string,
+    idVoiture: voiture.id,
+  }
 }
 
 export async function trouverDemandeE2E() {

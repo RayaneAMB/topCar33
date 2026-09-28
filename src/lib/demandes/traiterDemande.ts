@@ -3,7 +3,7 @@ import type { Payload } from 'payload'
 import type { Agence, Voiture } from '@/payload-types'
 
 import { adresseEnLigne } from '../format'
-import { mailAgence, mailClient, type AgenceMail, type DemandeMail } from './emails'
+import { mailAgence, mailClient, type AgenceMail, type DemandeMail, type NatureDemande } from './emails'
 import { CHAMP_PIEGE, type ErreursChamps } from './formulaire'
 import { validerDemande } from './schema'
 
@@ -40,6 +40,7 @@ export async function traiterDemande(
   }
 
   let voiture: Voiture | undefined
+  let nature: NatureDemande = 'generale'
   let demandeId: string
   try {
     if (donnees.voiture) {
@@ -51,6 +52,7 @@ export async function traiterDemande(
       })
       voiture = docs[0]
     }
+    if (voiture) nature = voiture.offre === 'vente' ? 'vente' : 'location'
     const demande = await payload.create({
       collection: 'demandes',
       data: {
@@ -61,6 +63,7 @@ export async function traiterDemande(
         adresse: { rue: donnees.rue, codePostal: donnees.codePostal, ville: donnees.ville },
         voiture: voiture?.id ?? null,
         message: donnees.message,
+        nature,
         statut: 'nouvelle',
       },
     })
@@ -82,6 +85,7 @@ export async function traiterDemande(
     ville: donnees.ville,
     message: donnees.message,
     voiture: voiture?.titre ?? undefined,
+    nature,
   }
   const infosAgence: AgenceMail = {
     nom: agence?.nom || 'TopCar33',

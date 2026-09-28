@@ -46,6 +46,16 @@ export function PiedDePage({ agence }: { agence: Agence }) {
           <p className="font-semibold">Informations</p>
           <ul className="mt-2 space-y-1">
             <li>
+              <Link href="/location" className="text-texte-doux hover:text-texte">
+                Voitures à louer
+              </Link>
+            </li>
+            <li>
+              <Link href="/vente" className="text-texte-doux hover:text-texte">
+                Voitures à vendre
+              </Link>
+            </li>
+            <li>
               <Link href="/contact" className="text-texte-doux hover:text-texte">
                 Contact
               </Link>

@@ -27,8 +27,11 @@ export function EnTete({ agence }: { agence: Agence }) {
           )}
         </Link>
         <nav aria-label="Navigation principale" className="flex items-center gap-4 text-sm sm:gap-6">
-          <Link href="/#voitures" className="text-texte-doux hover:text-texte">
-            Nos voitures
+          <Link href="/location" className="text-texte-doux hover:text-texte">
+            À louer
+          </Link>
+          <Link href="/vente" className="text-texte-doux hover:text-texte">
+            À vendre
           </Link>
           <Link href="/contact" className="text-texte-doux hover:text-texte">
             Contact

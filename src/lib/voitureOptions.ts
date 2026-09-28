@@ -1,5 +1,11 @@
 export type OptionListe = { label: string; value: string }
 
+/** Une voiture est soit à louer, soit à vendre : c'est ce choix qui commande prix et affichage. */
+export const OFFRES: OptionListe[] = [
+  { label: 'À louer', value: 'location' },
+  { label: 'À vendre', value: 'vente' },
+]
+
 export const BOITES: OptionListe[] = [
   { label: 'Manuelle', value: 'manuelle' },
   { label: 'Automatique', value: 'automatique' },
