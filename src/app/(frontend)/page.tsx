@@ -1,59 +1,54 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
-import React from 'react'
-import { fileURLToPath } from 'url'
+import { CarteVoiture } from '@/components/voitures/CarteVoiture'
+import { FiltresCategories } from '@/components/voitures/FiltresCategories'
+import { getAgence, getCategories, getVoitures } from '@/lib/donnees'
 
-import config from '@/payload.config'
-import './styles.css'
-
-export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
-
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+export default async function Accueil({
+  searchParams,
+}: {
+  searchParams: Promise<{ categorie?: string | string[] }>
+}) {
+  const { categorie } = await searchParams
+  const categorieSlug = typeof categorie === 'string' ? categorie : undefined
+  const [agence, categories, { voitures, categorieActive }] = await Promise.all([
+    getAgence(),
+    getCategories(),
+    getVoitures(categorieSlug),
+  ])
 
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
+    <>
+      <section className="border-b border-bordure bg-linear-to-br from-primaire/15 via-fond to-fond">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+          <h1 className="max-w-2xl text-4xl font-extrabold uppercase leading-tight tracking-wide sm:text-5xl">
+            {agence.accroche || 'Louez la voiture qu’il vous faut.'}
+          </h1>
+          {agence.sousAccroche && <p className="mt-4 max-w-xl text-lg text-texte-doux">{agence.sousAccroche}</p>}
           <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
+            href="#voitures"
+            className="mt-8 inline-block rounded-lg bg-primaire px-6 py-3 font-semibold text-primaire-contraste hover:opacity-90"
           >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
+            Voir nos voitures
           </a>
         </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
+      </section>
+
+      <section id="voitures" aria-labelledby="titre-voitures" className="mx-auto max-w-6xl scroll-mt-8 px-4 py-12">
+        <h2 id="titre-voitures" className="mb-6 text-2xl font-extrabold">
+          Nos voitures
+        </h2>
+        <FiltresCategories categories={categories} active={categorieActive?.slug ?? null} />
+        {voitures.length === 0 ? (
+          <p className="text-texte-doux">Aucune voiture à afficher pour le moment.</p>
+        ) : (
+          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {voitures.map((voiture) => (
+              <li key={voiture.id}>
+                <CarteVoiture voiture={voiture} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </>
   )
 }

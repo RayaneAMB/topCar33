@@ -49,4 +49,5 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
-.claude
+.claude/
+CLAUDE.md

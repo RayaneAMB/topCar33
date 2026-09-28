@@ -17,7 +17,9 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
+      // Pas de `channel: 'chromium'` : sur ce PC, le Chromium complet ne démarre pas
+      // (erreur Windows « side-by-side »). Le « headless shell » de Playwright fonctionne.
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
   // Réutilise le `npm run dev` déjà lancé s'il y en a un, sinon le démarre.
