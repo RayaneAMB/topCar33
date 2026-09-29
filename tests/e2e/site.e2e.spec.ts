@@ -7,9 +7,40 @@ test.describe('Socle du site', () => {
     const navigation = page.getByRole('navigation', { name: 'Navigation principale' })
     await expect(navigation.getByRole('link', { name: 'À louer' })).toBeVisible()
     await expect(navigation.getByRole('link', { name: 'À vendre' })).toBeVisible()
-    await expect(navigation.getByRole('link', { name: 'Contact', exact: true })).toBeVisible()
-    await expect(page.getByRole('contentinfo')).toContainText('Mentions légales')
+    await expect(navigation.getByRole('link', { name: 'Nous contacter' })).toBeVisible()
+    // Un seul lien vers le contact dans le menu.
+    await expect(navigation.getByRole('link', { name: /contact/i })).toHaveCount(1)
+    // Plus de bande de coordonnées au-dessus du logo : elles vivent dans le pied de page.
+    await expect(page.getByRole('complementary', { name: 'Coordonnées' })).toHaveCount(0)
+    const pied = page.getByRole('contentinfo')
+    await expect(pied).toContainText('Mentions légales')
+    await expect(pied.locator('a[href^="tel:"]')).toBeVisible()
+    await expect(pied.locator('a[href^="https://www.google.com/maps/search/"]')).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  })
+
+  test('sur mobile, la navigation passe par un menu déroulant', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+
+    // Menu fermé : le haut de l'écran ne montre que le logo et le bouton.
+    await expect(page.locator('header').getByRole('link', { name: 'À louer', exact: true })).toBeHidden()
+
+    await page.getByRole('button', { name: 'Ouvrir le menu' }).click()
+    const menu = page.getByRole('navigation', { name: 'Navigation principale' })
+    await expect(menu.getByRole('link', { name: 'À louer' })).toBeVisible()
+    await expect(menu.getByRole('link', { name: 'Nous contacter' })).toBeVisible()
+    await expect(page.getByRole('group', { name: 'Thème du site' })).toBeVisible()
+
+    // Les coordonnées de l'agence sont accessibles depuis le menu.
+    const panneau = page.locator('#menu-mobile')
+    await expect(panneau.locator('a[href^="tel:"]')).toBeVisible()
+    await expect(panneau.locator('a[href^="https://www.google.com/maps/search/"]')).toBeVisible()
+
+    // Un clic sur un lien navigue et referme le menu.
+    await menu.getByRole('link', { name: 'À vendre' }).click()
+    await expect(page).toHaveURL(/\/vente$/)
+    await expect(page.getByRole('button', { name: 'Ouvrir le menu' })).toBeVisible()
   })
 
   test('une page inconnue affiche la page 404 en français', async ({ page }) => {

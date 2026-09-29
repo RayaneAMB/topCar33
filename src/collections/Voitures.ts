@@ -55,6 +55,11 @@ export const Voitures: CollectionConfig = {
     ],
     beforeChange: [
       async ({ data, originalDoc, req }) => {
+        const nomComplet = data.nomComplet ?? originalDoc?.nomComplet
+        if (nomComplet) {
+          data.titre = nomComplet
+          return data
+        }
         const marque = data.marque ?? originalDoc?.marque
         const modele = data.modele ?? originalDoc?.modele
         const nom = await nomDeMarque(req, marque)
@@ -98,6 +103,16 @@ export const Voitures: CollectionConfig = {
           admin: { width: '50%', placeholder: 'ex. 208, Clio V, Duster' },
         },
       ],
+    },
+    {
+      name: 'nomComplet',
+      label: 'Nom complet (facultatif)',
+      type: 'text',
+      admin: {
+        placeholder: 'ex. Renault Trafic L2H2 9 places',
+        description:
+          'S’il est rempli, c’est ce nom qui s’affiche partout sur le site. Sinon : marque + modèle. L’adresse de la page ne change pas.',
+      },
     },
     {
       name: 'categorie',

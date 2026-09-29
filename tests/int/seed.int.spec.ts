@@ -25,7 +25,7 @@ describe('Seed (données temporaires)', () => {
     expect((await payload.count({ collection: 'voitures' })).totalDocs).toBe(6)
     expect((await payload.count({ collection: 'voitures', where: { offre: { equals: 'vente' } } })).totalDocs).toBe(2)
     const agence = await payload.findGlobal({ slug: 'agence' })
-    expect(agence.emailDemandes).toBe('demandes@topcar33.example')
+    expect(agence.emailDemandes).toBe('contact@topcar33.com')
     expect(agence.horaires).toHaveLength(2)
     const pages = await payload.findGlobal({ slug: 'pages-legales' })
     expect(pages.mentionsLegales).toBeTruthy()

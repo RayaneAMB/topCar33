@@ -146,6 +146,10 @@ export interface Voiture {
    */
   marque: string | Marque;
   modele: string;
+  /**
+   * S’il est rempli, c’est ce nom qui s’affiche partout sur le site. Sinon : marque + modèle. L’adresse de la page ne change pas.
+   */
+  nomComplet?: string | null;
   categorie: string | Categorie;
   /**
    * La première photo est la photo principale.
@@ -433,6 +437,7 @@ export interface VoituresSelect<T extends boolean = true> {
   offre?: T;
   marque?: T;
   modele?: T;
+  nomComplet?: T;
   categorie?: T;
   photos?: T;
   description?: T;

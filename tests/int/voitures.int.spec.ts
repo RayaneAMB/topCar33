@@ -65,6 +65,26 @@ describe('Collection voitures', () => {
     ).rejects.toThrow()
   })
 
+  it('le nom complet remplace le nom affiché, sans changer l’URL', async () => {
+    const voiture = await creerVoiture(payload, { marque: 'Renault', modele: 'Trafic' })
+    expect(voiture.titre).toBe('Renault Trafic')
+
+    const renommee = await payload.update({
+      collection: 'voitures',
+      id: voiture.id,
+      data: { nomComplet: 'Renault Trafic L2H2 9 places' },
+    })
+    expect(renommee.titre).toBe('Renault Trafic L2H2 9 places')
+    expect(renommee.slug).toBe('renault-trafic')
+  })
+
+  it('vider le nom complet fait revenir à « marque + modèle »', async () => {
+    const voiture = await creerVoiture(payload, { marque: 'Renault', modele: 'Trafic' })
+    await payload.update({ collection: 'voitures', id: voiture.id, data: { nomComplet: 'Trafic aménagé' } })
+    const revenue = await payload.update({ collection: 'voitures', id: voiture.id, data: { nomComplet: '' } })
+    expect(revenue.titre).toBe('Renault Trafic')
+  })
+
   it('une voiture est « à louer » par défaut', async () => {
     const voiture = await creerVoiture(payload)
     expect(voiture.offre).toBe('location')

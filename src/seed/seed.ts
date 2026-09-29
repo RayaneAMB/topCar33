@@ -73,10 +73,10 @@ const AGENCE_TEMPORAIRE = {
   nom: 'TopCar33',
   accroche: 'Louez la voiture qu’il vous faut.',
   sousAccroche: 'Véhicules récents et entretenus, à partir de 35 € par jour.',
-  adresse: { rue: 'Adresse temporaire — à remplacer', codePostal: '33000', ville: 'Bordeaux' },
+  adresse: { rue: '296 avenue Pasteur', codePostal: '33185', ville: 'Le Haillan' },
   telephone: '05 00 00 00 00',
-  emailPublic: 'contact@topcar33.example',
-  emailDemandes: 'demandes@topcar33.example',
+  emailPublic: 'contact@topcar33.com',
+  emailDemandes: 'contact@topcar33.com',
   horaires: [
     { jours: 'Lundi – Vendredi', heures: '9h – 19h' },
     { jours: 'Samedi', heures: '9h – 12h' },

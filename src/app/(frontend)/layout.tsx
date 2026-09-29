@@ -1,14 +1,15 @@
 import type { Metadata, Viewport } from 'next'
+import { cookies } from 'next/headers'
 import React from 'react'
 
 // Montserrat (police de texte de la charte), auto-hébergée : aucun appel à Google Fonts.
 // Bank Gothic, la police des titres, est chargée dans styles.css depuis /public/polices.
 import '@fontsource-variable/montserrat'
 
-import { BarreInfos } from '@/components/site/BarreInfos'
 import { EnTete } from '@/components/site/EnTete'
 import { PiedDePage } from '@/components/site/PiedDePage'
 import { getAgence } from '@/lib/donnees'
+import { attributTheme, CLE_THEME, estUnTheme, type Theme } from '@/lib/theme'
 
 import './styles.css'
 
@@ -38,13 +39,16 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const agence = await getAgence()
+  const [agence, magasinCookies] = await Promise.all([getAgence(), cookies()])
+
+  // Le thème choisi est posé côté serveur : la page arrive déjà dans la bonne couleur.
+  const choix = magasinCookies.get(CLE_THEME)?.value
+  const theme: Theme = estUnTheme(choix) ? choix : 'systeme'
 
   return (
-    <html lang="fr">
+    <html lang="fr" data-theme={attributTheme(theme)}>
       <body className="flex min-h-screen flex-col bg-fond text-texte antialiased">
-        <BarreInfos agence={agence} />
-        <EnTete agence={agence} />
+        <EnTete agence={agence} theme={theme} />
         <main className="flex-1">{children}</main>
         <PiedDePage agence={agence} />
       </body>
