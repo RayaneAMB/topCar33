@@ -76,7 +76,6 @@ const AGENCE_TEMPORAIRE = {
   adresse: { rue: '296 avenue Pasteur', codePostal: '33185', ville: 'Le Haillan' },
   telephone: '05 00 00 00 00',
   emailPublic: 'contact@topcar33.com',
-  emailDemandes: 'contact@topcar33.com',
   horaires: [
     { jours: 'Lundi – Vendredi', heures: '9h – 19h' },
     { jours: 'Samedi', heures: '9h – 12h' },
@@ -139,6 +138,25 @@ async function normaliserOffres(payload: Payload): Promise<void> {
   if (docs.length > 0) payload.logger.info(`Seed : ${docs.length} voiture(s) passée(s) en « à louer ».`)
 }
 
+/**
+ * L'adresse qui recevait les demandes vivait dans « Infos agence », un global public.
+ * Elle devient le premier destinataire de « Réglages → Mails », qui lui est privé.
+ */
+export async function migrerDestinataires(payload: Payload): Promise<void> {
+  const reglages = await payload.findGlobal({ slug: 'mails' })
+  if (reglages.destinataires?.length) return
+
+  const db = payload.db as MongooseAdapter
+  const ancienne = await db.globals.collection.findOne({ globalType: 'agence' })
+  const email =
+    typeof ancienne?.emailDemandes === 'string' && ancienne.emailDemandes
+      ? ancienne.emailDemandes
+      : AGENCE_TEMPORAIRE.emailPublic
+
+  await payload.updateGlobal({ slug: 'mails', data: { destinataires: [{ email }] } })
+  payload.logger.info(`Seed : « ${email} » enregistrée comme destinataire des demandes.`)
+}
+
 /** Remplit la base avec des données TEMPORAIRES (voitures de démo, infos agence, pages légales). */
 export async function seed(payload: Payload): Promise<void> {
   await normaliserOffres(payload)
@@ -197,10 +215,12 @@ export async function seed(payload: Payload): Promise<void> {
   )
 
   const agence = await payload.findGlobal({ slug: 'agence' })
-  if (!agence.emailDemandes) {
+  if (!agence.emailPublic) {
     await payload.updateGlobal({ slug: 'agence', data: AGENCE_TEMPORAIRE })
     payload.logger.info('Seed : infos agence temporaires enregistrées.')
   }
+
+  await migrerDestinataires(payload)
 
   const pages = await payload.findGlobal({ slug: 'pages-legales' })
   if (!pages.mentionsLegales || !pages.confidentialite) {

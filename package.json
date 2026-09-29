@@ -31,8 +31,10 @@
     "@payloadcms/ui": "3.90.1",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.7",
+    "ejs": "^6.0.1",
     "graphql": "^16.8.1",
     "next": "16.3.3",
+    "nodemailer": "^10.0.12",
     "payload": "3.90.1",
     "react": "19.2.6",
     "react-dom": "19.2.6",
@@ -69,5 +71,19 @@
       "esbuild",
       "unrs-resolver"
     ]
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RayaneAMB/topCar33.git"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/RayaneAMB/topCar33/issues"
+  },
+  "homepage": "https://github.com/RayaneAMB/topCar33#readme"
 }

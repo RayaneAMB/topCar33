@@ -30,6 +30,14 @@ describe('Globals', () => {
     ).rejects.toMatchObject({ status: 403 })
   })
 
+  it('les destinataires des demandes restent invisibles aux visiteurs anonymes', async () => {
+    await payload.updateGlobal({ slug: 'mails', data: { destinataires: [{ email: 'prive@topcar33.example' }] } })
+    await expect(payload.findGlobal({ slug: 'mails', overrideAccess: false })).rejects.toMatchObject({ status: 403 })
+    await expect(
+      payload.updateGlobal({ slug: 'mails', data: { copieCachee: 'pirate@exemple.fr' }, overrideAccess: false }),
+    ).rejects.toMatchObject({ status: 403 })
+  })
+
   it('un visiteur anonyme lit les pages légales mais ne peut pas les modifier', async () => {
     const pages = await payload.findGlobal({ slug: 'pages-legales', overrideAccess: false })
     expect(pages).toBeDefined()

@@ -97,10 +97,12 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     agence: Agence;
+    mails: ReglagesMails;
     'pages-legales': PagesLegales;
   };
   globalsSelect: {
     agence: AgenceSelect<false> | AgenceSelect<true>;
+    mails: MailsSelect<false> | MailsSelect<true>;
     'pages-legales': PagesLegalesSelect<false> | PagesLegalesSelect<true>;
   };
   locale: null;
@@ -310,6 +312,10 @@ export interface Demande {
    * Rempli automatiquement.
    */
   titre?: string | null;
+  /**
+   * Sert à limiter le nombre de demandes par heure. L’adresse IP n’est pas conservée : ceci en est une version brouillée, impossible à retrouver.
+   */
+  empreinteIp?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -567,6 +573,7 @@ export interface DemandesSelect<T extends boolean = true> {
   mailAgenceEnvoye?: T;
   mailClientEnvoye?: T;
   titre?: T;
+  empreinteIp?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -649,10 +656,6 @@ export interface Agence {
   };
   telephone?: string | null;
   emailPublic?: string | null;
-  /**
-   * Non affiché sur le site. Sans adresse ici, aucune demande n’est transmise par mail.
-   */
-  emailDemandes?: string | null;
   horaires?:
     | {
         jours: string;
@@ -664,6 +667,34 @@ export interface Agence {
    * Facultatif : sans logo, le nom de l’agence s’affiche en texte.
    */
   logo?: (string | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Qui est prévenu quand un visiteur envoie le formulaire de contact.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mails".
+ */
+export interface ReglagesMails {
+  id: string;
+  /**
+   * Chaque demande part vers toutes ces adresses. Sans aucune adresse, la demande reste enregistrée dans « Demandes » mais n’est transmise à personne.
+   */
+  destinataires?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Facultatif : reçoit une copie de chaque demande sans apparaître dans le mail.
+   */
+  copieCachee?: string | null;
+  /**
+   * Au-delà, la demande est refusée avec un message. Vide = 10.
+   */
+  limiteParHeure?: number | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -723,7 +754,6 @@ export interface AgenceSelect<T extends boolean = true> {
       };
   telephone?: T;
   emailPublic?: T;
-  emailDemandes?: T;
   horaires?:
     | T
     | {
@@ -732,6 +762,23 @@ export interface AgenceSelect<T extends boolean = true> {
         id?: T;
       };
   logo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mails_select".
+ */
+export interface MailsSelect<T extends boolean = true> {
+  destinataires?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
+  copieCachee?: T;
+  limiteParHeure?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

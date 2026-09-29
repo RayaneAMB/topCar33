@@ -43,12 +43,6 @@ export const Agence: GlobalConfig = {
       ],
     },
     {
-      name: 'emailDemandes',
-      label: 'Email qui reçoit les demandes de contact',
-      type: 'email',
-      admin: { description: 'Non affiché sur le site. Sans adresse ici, aucune demande n’est transmise par mail.' },
-    },
-    {
       name: 'horaires',
       label: 'Horaires',
       type: 'array',

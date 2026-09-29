@@ -115,5 +115,17 @@ export const Demandes: CollectionConfig = {
       type: 'text',
       admin: { position: 'sidebar', readOnly: true, description: 'Rempli automatiquement.' },
     },
+    {
+      name: 'empreinteIp',
+      label: 'Empreinte du visiteur',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description:
+          'Sert à limiter le nombre de demandes par heure. L’adresse IP n’est pas conservée : ceci en est une version brouillée, impossible à retrouver.',
+      },
+    },
   ],
 }

@@ -1,10 +1,12 @@
 import type { Payload } from 'payload'
 
-import type { Agence, Voiture } from '@/payload-types'
+import type { Agence, ReglagesMails, Voiture } from '@/payload-types'
 
 import { adresseEnLigne } from '../format'
 import { mailAgence, mailClient, type AgenceMail, type DemandeMail, type NatureDemande } from './emails'
 import { CHAMP_PIEGE, type ErreursChamps } from './formulaire'
+import { empreinteIp } from './empreinte'
+import { FENETRE_MS, LIMITE_PAR_HEURE } from './limite'
 import { validerDemande } from './schema'
 
 export type ResultatTraitement =
@@ -12,14 +14,20 @@ export type ResultatTraitement =
   | { statut: 'invalide'; erreurs: ErreursChamps }
   | { statut: 'erreur'; message: string }
 
+/** Le numéro de téléphone de l'agence, en complément d'un message d'erreur. */
+function rappelTelephone(agence: Agence | null): string {
+  return agence?.telephone ? ` ou appelez-nous au ${agence.telephone}` : ''
+}
+
 /**
- * 1. champ piège → faux succès ; 2. validation ; 3. enregistrement ;
- * 4. mail agence + mail client (un échec n'annule jamais la demande) ; 5. note des envois.
+ * 1. champ piège → faux succès ; 2. validation ; 3. limite par adresse ;
+ * 4. enregistrement ; 5. mail agence + mail client (un échec n'annule jamais la
+ * demande) ; 6. note des envois.
  */
 export async function traiterDemande(
   payload: Payload,
   brut: Record<string, unknown>,
-  options: { urlSite?: string } = {},
+  options: { urlSite?: string; ip?: string | null } = {},
 ): Promise<ResultatTraitement> {
   const urlSite = options.urlSite ?? process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
 
@@ -37,6 +45,45 @@ export async function traiterDemande(
     agence = await payload.findGlobal({ slug: 'agence', depth: 0 })
   } catch (erreur) {
     payload.logger.error({ err: erreur, msg: 'Lecture des infos agence impossible' })
+  }
+
+  let reglagesMails: ReglagesMails | null = null
+  try {
+    reglagesMails = await payload.findGlobal({ slug: 'mails', depth: 0 })
+  } catch (erreur) {
+    payload.logger.error({ err: erreur, msg: 'Lecture des réglages mails impossible' })
+  }
+  const destinataires = (reglagesMails?.destinataires ?? [])
+    .map(({ email }) => email?.trim())
+    .filter((email): email is string => Boolean(email))
+  const copieCachee = reglagesMails?.copieCachee?.trim() || undefined
+
+  // Une même adresse ne peut pas inonder l'agence : on compte ses demandes de la
+  // dernière heure. Sans adresse connue (hébergement sans proxy), on laisse passer
+  // plutôt que de bloquer tout le monde d'un coup.
+  const limite = reglagesMails?.limiteParHeure ?? LIMITE_PAR_HEURE
+  const empreinte = options.ip ? empreinteIp(options.ip, process.env.PAYLOAD_SECRET ?? '') : null
+  if (!empreinte) {
+    payload.logger.warn(
+      `Adresse du visiteur inconnue : la limite de ${limite} demandes par heure ne s’applique pas.`,
+    )
+  } else {
+    const debutFenetre = new Date(Date.now() - FENETRE_MS).toISOString()
+    const { totalDocs } = await payload.count({
+      collection: 'demandes',
+      where: {
+        and: [{ empreinteIp: { equals: empreinte } }, { createdAt: { greater_than: debutFenetre } }],
+      },
+    })
+    if (totalDocs >= limite) {
+      payload.logger.warn(`Limite horaire atteinte pour une adresse (${totalDocs} demandes) : demande refusée.`)
+      return {
+        statut: 'erreur',
+        message:
+          `Vous avez déjà envoyé ${limite} demandes dans l’heure. ` +
+          `Réessayez plus tard${rappelTelephone(agence)}.`,
+      }
+    }
   }
 
   let voiture: Voiture | undefined
@@ -65,13 +112,13 @@ export async function traiterDemande(
         message: donnees.message,
         nature,
         statut: 'nouvelle',
+        empreinteIp: empreinte,
       },
     })
     demandeId = demande.id
   } catch (erreur) {
     payload.logger.error({ err: erreur, msg: 'Enregistrement de la demande de contact impossible' })
-    const telephone = agence?.telephone ? ` ou appelez-nous au ${agence.telephone}` : ''
-    return { statut: 'erreur', message: `Une erreur est survenue. Réessayez${telephone}.` }
+    return { statut: 'erreur', message: `Une erreur est survenue. Réessayez${rappelTelephone(agence)}.` }
   }
 
   const pourMail: DemandeMail = {
@@ -96,12 +143,13 @@ export async function traiterDemande(
   }
 
   let mailAgenceEnvoye = false
-  if (agence?.emailDemandes) {
+  if (destinataires.length) {
     try {
       await payload.sendEmail({
-        to: agence.emailDemandes,
+        to: destinataires,
+        ...(copieCachee ? { bcc: copieCachee } : {}),
         replyTo: donnees.email,
-        ...mailAgence(pourMail, `${urlSite}/admin/collections/demandes/${demandeId}`),
+        ...mailAgence(pourMail, `${urlSite}/admin/collections/demandes/${demandeId}`, infosAgence),
       })
       mailAgenceEnvoye = true
     } catch (erreur) {
@@ -109,7 +157,7 @@ export async function traiterDemande(
     }
   } else {
     payload.logger.warn(
-      `Aucun « Email qui reçoit les demandes » dans Infos agence : demande ${demandeId} non transmise par mail`,
+      `Aucun destinataire dans Réglages → Mails : demande ${demandeId} non transmise par mail`,
     )
   }
 

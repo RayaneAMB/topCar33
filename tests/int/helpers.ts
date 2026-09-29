@@ -32,6 +32,16 @@ export async function creerMarque(payload: Payload, nom: string) {
 }
 
 /** Vide les collections dans l'ordre donné (mettre les collections « enfants » en premier). */
+/**
+ * Recule la date de création des demandes, pour tester la fenêtre glissante
+ * sans attendre une heure. Payload gère `createdAt` lui-même : on passe par Mongo.
+ */
+export async function vieillirDemandes(payload: Payload, minutes: number): Promise<void> {
+  const db = payload.db as MongooseAdapter
+  const date = new Date(Date.now() - minutes * 60 * 1000)
+  await db.collections.demandes.collection.updateMany({}, { $set: { createdAt: date } })
+}
+
 export async function viderCollections(payload: Payload, collections: CollectionSlug[]): Promise<void> {
   for (const collection of collections) {
     await payload.delete({ collection, where: { id: { exists: true } } })

@@ -13,6 +13,7 @@ import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 import { Voitures } from './collections/Voitures'
 import { Agence } from './globals/Agence'
+import { Mails } from './globals/Mails'
 import { PagesLegales } from './globals/PagesLegales'
 import { adaptateurEmail } from './lib/email/adaptateur'
 
@@ -37,7 +38,7 @@ export default buildConfig({
     },
   },
   collections: [Voitures, Marques, Categories, Media, Demandes, Users],
-  globals: [Agence, PagesLegales],
+  globals: [Agence, Mails, PagesLegales],
   editor: lexicalEditor(),
   email: adaptateurEmail(),
   i18n: {

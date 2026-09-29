@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { mailAgence, mailClient, type AgenceMail, type DemandeMail } from '@/lib/demandes/emails'
 
@@ -55,14 +55,24 @@ describe('mailAgence', () => {
     expect(html).toContain('Question générale')
   })
 
+  it('joint le logo au mail et garde le nom en repli si les images sont bloquées', () => {
+    const { html, attachments } = mailAgence(demande, URL_ADMIN, agence)
+    expect(html).toContain('src="cid:logo-topcar33"')
+    expect(html).toContain('alt="TopCar33"')
+    expect(attachments?.[0]).toMatchObject({ cid: 'logo-topcar33', contentType: 'image/png' })
+    expect(attachments?.[0].content.length).toBeGreaterThan(1000)
+  })
+
   it('neutralise le HTML tapé par le client', () => {
     const { html } = mailAgence(
       { ...demande, prenom: '<script>alert(1)</script>', message: '<img src=x onerror=alert(1)>' },
       URL_ADMIN,
     )
     expect(html).not.toContain('<script>')
-    expect(html).not.toContain('<img')
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;')
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;')
+    // Les seules images du mail sont les nôtres : le logo et le titre.
+    expect(html.match(/<img/g)).toHaveLength(2)
   })
 })
 
@@ -84,6 +94,40 @@ describe('mailClient', () => {
 
   it('ne contient aucun lien vers l’administration', () => {
     expect(mailClient(demande, agence).html).not.toContain('/admin')
+  })
+
+  it('déclare les polices du site, avec un repli pour les clients qui les refusent', () => {
+    const { html } = mailClient(demande, agence)
+    expect(html).toContain('@font-face')
+    expect(html).toContain('/polices/montserrat-latin-wght-normal.woff2')
+    expect(html).toContain('/polices/BankGothic-Bold.ttf')
+    // Les URLs doivent être absolues : une boîte mail n'a pas de page de référence.
+    expect(html).toMatch(/url\('https?:\/\/[^']+\/polices\//)
+    // Repli présent partout où une police est posée.
+    expect(html).toContain('Arial')
+  })
+
+  it('joint le même logo que le mail agence', () => {
+    const { html, attachments } = mailClient(demande, agence)
+    expect(html).toContain('src="cid:logo-topcar33"')
+    expect(attachments?.[0]).toMatchObject({ cid: 'logo-topcar33', filename: 'logo-topcar33.png' })
+  })
+
+  it('avec MAIL_LOGO_URL, le logo est lié au lieu d’être joint', () => {
+    vi.stubEnv('MAIL_LOGO_URL', 'https://topcar33.com/marque/logo-mail.png')
+    const { html, attachments } = mailClient(demande, agence)
+    expect(html).toContain('src="https://topcar33.com/marque/logo-mail.png"')
+    expect(html).not.toContain('cid:logo-topcar33')
+    // Le titre reste joint : lui n'a pas d'adresse publique.
+    expect(attachments?.map(({ cid }) => cid)).toEqual(['titre-demande-bien-recue'])
+    vi.unstubAllEnvs()
+  })
+
+  it('affiche le titre dans la police de la marque, en gardant le texte en repli', () => {
+    const { html, attachments } = mailClient(demande, agence)
+    expect(html).toContain('src="cid:titre-demande-bien-recue"')
+    expect(html).toContain('alt="Demande bien reçue"')
+    expect(attachments?.some(({ cid }) => cid === 'titre-demande-bien-recue')).toBe(true)
   })
 
   it('neutralise le HTML tapé par le client', () => {

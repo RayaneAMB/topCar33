@@ -40,6 +40,8 @@ test.describe('Contact', () => {
     await expect(page.getByRole('status')).toContainText('Merci Camille')
     const demande = await trouverDemandeE2E()
     expect(demande).toMatchObject({ titre: 'Camille Martin', voiture: idVoiture, statut: 'nouvelle' })
+    // L'adresse du visiteur a bien traversé la requête : sans elle, pas de limite horaire.
+    expect(demande?.empreinteIp).toMatch(/^[0-9a-f]{32}$/)
   })
 
   test('le bloc « Nous trouver » affiche les coordonnées et le lien d’itinéraire', async ({ page }) => {
