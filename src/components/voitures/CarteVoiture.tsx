@@ -3,13 +3,17 @@ import Link from 'next/link'
 
 import type { Voiture } from '@/payload-types'
 import { nomCategorie, premierePhoto, prixPrincipal, urlPhoto } from '@/lib/format'
+import { photoDetouree } from '@/lib/images/detouree'
 
 import { BadgeDispo } from './BadgeDispo'
 import { PointsVoiture } from './PointsVoiture'
 
 export function CarteVoiture({ voiture }: { voiture: Voiture }) {
   const photo = premierePhoto(voiture.photos)
-  const src = urlPhoto(photo, 'carte')
+  const original = urlPhoto(photo, 'carte')
+  // Photo détourée quand elle existe : la voiture flotte, sans rectangle blanc.
+  const detouree = photoDetouree(original)
+  const src = detouree ?? original
   const categorie = nomCategorie(voiture.categorie)
   const titre = voiture.titre || voiture.modele
   const prix = prixPrincipal(voiture)
@@ -26,7 +30,7 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
             alt={photo?.alt || titre}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover"
+            className={detouree ? 'object-contain p-3' : 'object-cover'}
           />
         )}
         <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">

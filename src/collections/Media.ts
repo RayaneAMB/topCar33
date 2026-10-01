@@ -30,6 +30,9 @@ export const Media: CollectionConfig = {
       { name: 'miniature', width: 400 },
       { name: 'carte', width: 800 },
       { name: 'grande', width: 1600 },
+      // Un tour à 360° charge 24 à 36 images d'affilée : elles doivent rester
+      // légères, sinon la rotation saccade sur mobile.
+      { name: 'tour', width: 600 },
     ],
   },
 }

@@ -1,6 +1,6 @@
 import type { Payload, Where } from 'payload'
 
-import type { Agence, Categorie, PagesLegales, Voiture } from '@/payload-types'
+import type { Agence, Categorie, PagesLegales, ReglagesApparence, Voiture } from '@/payload-types'
 import type { OffreVoiture } from './format'
 
 export async function listerCategories(payload: Payload): Promise<Categorie[]> {
@@ -61,4 +61,9 @@ export async function lireAgence(payload: Payload): Promise<Agence> {
 
 export async function lirePagesLegales(payload: Payload): Promise<PagesLegales> {
   return payload.findGlobal({ slug: 'pages-legales', depth: 0 })
+}
+
+/** Le décor animé du site : les vues de la voiture qui tourne en fond de page. */
+export async function lireApparence(payload: Payload): Promise<ReglagesApparence> {
+  return payload.findGlobal({ slug: 'apparence', depth: 1 })
 }

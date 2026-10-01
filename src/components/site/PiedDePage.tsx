@@ -11,7 +11,7 @@ export function PiedDePage({ agence }: { agence: Agence }) {
   const itineraire = lienItineraire(agence.adresse)
 
   return (
-    <footer className="mt-20 border-t border-bordure bg-fond-alt">
+    <footer className="voile-decor mt-20 border-t border-bordure bg-fond-alt/75">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 text-sm sm:grid-cols-3">
         <div>
           <LogoMarque agence={agence} hauteur={40} />

@@ -7,9 +7,12 @@ import React from 'react'
 import '@fontsource-variable/montserrat'
 
 import { EnTete } from '@/components/site/EnTete'
+import { FondRotatif } from '@/components/site/FondRotatif'
 import { PiedDePage } from '@/components/site/PiedDePage'
-import { getAgence } from '@/lib/donnees'
+import { getAgence, getApparence } from '@/lib/donnees'
 import { attributTheme, CLE_THEME, estUnTheme, type Theme } from '@/lib/theme'
+import { photosDetourees } from '@/lib/images/detouree'
+import { allegerTour, imagesTour } from '@/lib/tour360'
 
 import './styles.css'
 
@@ -39,7 +42,13 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [agence, magasinCookies] = await Promise.all([getAgence(), cookies()])
+  const [agence, magasinCookies, apparence] = await Promise.all([getAgence(), cookies(), getApparence()])
+
+  // Décor de fond : les vues détourées évitent toute ruse de fusion des couleurs.
+  const vuesOriginales = allegerTour(imagesTour(apparence?.decor360))
+  const vuesDetourees = photosDetourees(vuesOriginales)
+  const vuesDecor = vuesDetourees ?? vuesOriginales
+  const decorDetoure = vuesDetourees !== null
 
   // Le thème choisi est posé côté serveur : la page arrive déjà dans la bonne couleur.
   const choix = magasinCookies.get(CLE_THEME)?.value
@@ -47,7 +56,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="fr" data-theme={attributTheme(theme)}>
-      <body className="flex min-h-screen flex-col bg-fond text-texte antialiased">
+      <body className="flex min-h-screen flex-col text-texte antialiased">
+        <FondRotatif images={vuesDecor} detourees={decorDetoure} />
         <EnTete agence={agence} theme={theme} />
         <main className="flex-1">{children}</main>
         <PiedDePage agence={agence} />

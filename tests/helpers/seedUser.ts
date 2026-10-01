@@ -7,10 +7,23 @@ export const testUser = {
 }
 
 /**
+ * Les tests ne peuvent pas lire le code à 6 chiffres envoyé par mail : ils ne
+ * savent donc se connecter que sans double authentification. On la coupe le temps
+ * des tests, en retenant le réglage pour le remettre ensuite.
+ */
+let doubleAuthAvant: boolean | null = null
+
+/**
  * Seeds a test user for e2e admin tests.
  */
 export async function seedTestUser(): Promise<void> {
   const payload = await getPayload({ config })
+
+  const securite = await payload.findGlobal({ slug: 'securite', depth: 0 })
+  doubleAuthAvant = Boolean(securite?.doubleAuth)
+  if (doubleAuthAvant) {
+    await payload.updateGlobal({ slug: 'securite', data: { doubleAuth: false } })
+  }
 
   // Delete existing test user if any
   await payload.delete({
@@ -43,4 +56,9 @@ export async function cleanupTestUser(): Promise<void> {
       },
     },
   })
+
+  if (doubleAuthAvant) {
+    await payload.updateGlobal({ slug: 'securite', data: { doubleAuth: true } })
+  }
+  doubleAuthAvant = null
 }

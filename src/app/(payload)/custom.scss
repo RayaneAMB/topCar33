@@ -199,3 +199,111 @@ html[data-theme='dark'] {
     display: block;
   }
 }
+
+/* ----------------------------------------------------------------------------
+   Interrupteur — pour les cases où l'on active ou désactive quelque chose.
+   Payload rend une case à cocher classique ; on la transforme en bascule, plus
+   parlante pour un réglage qu'on allume ou qu'on éteint. La case reste une vraie
+   case : le clavier, le lecteur d'écran et le formulaire ne voient aucune
+   différence. À poser avec `admin: { className: 'tc-interrupteur' }`.
+   ---------------------------------------------------------------------------- */
+.tc-interrupteur {
+  .checkbox-input {
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* La glissière. */
+  .checkbox-input__input {
+    position: relative;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--theme-elevation-250);
+    border-radius: 999px;
+    background: var(--theme-elevation-100);
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease;
+  }
+
+  /* La case elle-même couvre toute la glissière, invisible. */
+  input[type='checkbox'] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  /* Le bouton qui coulisse : c'est l'icône de Payload, redessinée. */
+  .checkbox-input__icon {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+    transform: translateY(-50%);
+    transition: transform 0.18s ease;
+    pointer-events: none;
+
+    /* Payload dessine une coche en SVG : on ne garde que la pastille. */
+    svg,
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  input[type='checkbox']:checked + .checkbox-input__icon {
+    transform: translate(20px, -50%);
+  }
+
+  .checkbox-input__input:has(input:checked) {
+    border-color: var(--tc-petrole);
+    background: var(--tc-petrole);
+  }
+
+  /* Visible au clavier : l'anneau suit la glissière. */
+  .checkbox-input__input:has(input:focus-visible) {
+    outline: 2px solid var(--tc-cyan);
+    outline-offset: 2px;
+  }
+
+  .field-label {
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Déconnexion — Payload n'affiche qu'une icône en bas de la barre latérale,
+   sous la ligne de flottaison sur un écran d'ordinateur portable. On lui donne
+   son nom : un bouton qu'on ne trouve pas est un bouton qui n'existe pas.
+   ---------------------------------------------------------------------------- */
+.nav__controls .nav__log-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--theme-elevation-600);
+  transition: color 0.15s ease;
+
+  &::after {
+    content: 'Se déconnecter';
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--tc-cyan);
+  }
+}

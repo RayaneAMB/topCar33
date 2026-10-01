@@ -50,12 +50,6 @@ export const IconeAnnee = ({ className }: Props) => (
   </svg>
 )
 
-export const IconeTelephone = ({ className }: Props) => (
-  <svg {...base} className={className}>
-    <path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2.2 2A16 16 0 0 1 3 6.2 2 2 0 0 1 5 4z" />
-  </svg>
-)
-
 export const IconeCompteur = ({ className }: Props) => (
   <svg {...base} className={className}>
     <path d="M4 18a8 8 0 1 1 16 0" />

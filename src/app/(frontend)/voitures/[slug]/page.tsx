@@ -6,6 +6,7 @@ import { RichTexte } from '@/components/RichTexte'
 import { BadgeDispo } from '@/components/voitures/BadgeDispo'
 import { Caracteristiques } from '@/components/voitures/Caracteristiques'
 import { GaleriePhotos } from '@/components/voitures/GaleriePhotos'
+import { Tour360 } from '@/components/voitures/Tour360'
 import { TableauInfos } from '@/components/voitures/TableauInfos'
 import { getVoiture } from '@/lib/donnees'
 import {
@@ -19,6 +20,8 @@ import {
   prixPrincipal,
   urlPhoto,
 } from '@/lib/format'
+import { photoDetouree, photosDetourees } from '@/lib/images/detouree'
+import { imagesTour } from '@/lib/tour360'
 
 type Params = { params: Promise<{ slug: string }> }
 
@@ -40,6 +43,10 @@ export default async function PageVoiture({ params }: Params) {
   if (!voiture) notFound()
 
   const titre = voiture.titre || voiture.modele
+  const vuesOriginales = imagesTour(voiture.tour360)
+  // Tout ou rien : une série mi-détourée ferait clignoter le fond à la rotation.
+  const vuesDetourees = photosDetourees(vuesOriginales)
+  const vues = vuesDetourees ?? vuesOriginales
   const categorie = nomCategorie(voiture.categorie)
   const aVendre = estAVendre(voiture)
   const prix = prixPrincipal(voiture)
@@ -51,7 +58,23 @@ export default async function PageVoiture({ params }: Params) {
       </Link>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
-        <GaleriePhotos photos={photosGalerie(voiture.photos)} titre={titre} />
+        <div className="flex flex-col gap-6">
+          <GaleriePhotos photos={photosGalerie(voiture.photos).map((photo) => ({
+            ...photo,
+            url: photoDetouree(photo.url) ?? photo.url,
+            miniature: photoDetouree(photo.miniature) ?? photo.miniature,
+          }))} titre={titre} />
+          {vues.length > 0 && (
+            <section aria-labelledby="titre-tour">
+              <h2 id="titre-tour" className="text-sm">
+                Tour à 360°
+              </h2>
+              <div className="mt-3">
+                <Tour360 images={vues} titre={titre} detourees={vuesDetourees !== null} />
+              </div>
+            </section>
+          )}
+        </div>
 
         <div>
           <div className="flex flex-wrap items-center gap-3">

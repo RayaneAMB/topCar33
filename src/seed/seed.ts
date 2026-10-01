@@ -5,8 +5,8 @@ import { slugify } from '../lib/slug'
 import { MARQUES } from '../lib/voitureOptions'
 import { imageVoiture, type Silhouette } from './images'
 import { paragraphes } from './lexical'
+import { confidentialite, mentionsLegales } from './pagesLegales'
 
-const CATEGORIES = ['Citadine', 'SUV', 'Utilitaire']
 
 type VoitureTemporaire = {
   offre: 'location' | 'vente'
@@ -223,21 +223,23 @@ export async function seed(payload: Payload): Promise<void> {
   await migrerDestinataires(payload)
 
   const pages = await payload.findGlobal({ slug: 'pages-legales' })
-  if (!pages.mentionsLegales || !pages.confidentialite) {
-    await payload.updateGlobal({
-      slug: 'pages-legales',
-      data: {
-        mentionsLegales: paragraphes(
-          '[TEMPORAIRE — à compléter] Éditeur du site : raison sociale, forme juridique et capital, adresse du siège, numéro SIRET, numéro de TVA intracommunautaire, directeur de la publication, téléphone et email.',
-          '[TEMPORAIRE — à compléter après le choix de l’hébergeur] Hébergeur : nom, adresse et téléphone.',
-        ),
-        confidentialite: paragraphes(
-          '[TEMPORAIRE — à faire valider] Les informations du formulaire de contact (nom, prénom, adresse, email, téléphone, message) servent uniquement à répondre à votre demande. Elles ne sont ni vendues ni transmises à des tiers.',
-          'Elles sont conservées au maximum 3 ans après notre dernier échange, puis supprimées.',
-          'Vous pouvez demander l’accès, la rectification ou la suppression de vos données en nous écrivant. Vous pouvez aussi adresser une réclamation à la CNIL (cnil.fr).',
-        ),
-      },
-    })
-    payload.logger.info('Seed : pages légales temporaires enregistrées.')
+  // Vide, ou encore rempli du texte bouche-trou des premières versions : on
+  // pose le vrai texte. Dès qu'il a été retouché dans l'admin, on n'y revient
+  // plus — écraser le travail de l'agence au prochain seed serait impardonnable.
+  if (aRemplacer(pages.mentionsLegales) || aRemplacer(pages.confidentialite)) {
+    await payload.updateGlobal({ slug: 'pages-legales', data: { mentionsLegales, confidentialite } })
+    payload.logger.info('Seed : pages légales enregistrées (hébergeur et médiateur restent à compléter).')
   }
+}
+
+/**
+ * Vrai tant que le champ n'a pas été pris en main dans l'administration : vide,
+ * ou portant encore l'un de nos marqueurs de trou. Dès que le dernier
+ * « [À COMPLÉTER » disparaît, le texte est considéré comme celui de l'agence et
+ * le seed n'y touche plus jamais.
+ */
+function aRemplacer(champ: unknown): boolean {
+  if (!champ) return true
+  const texte = JSON.stringify(champ)
+  return texte.includes('[TEMPORAIRE') || texte.includes('[À COMPLÉTER')
 }

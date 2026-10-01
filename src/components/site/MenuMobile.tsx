@@ -6,13 +6,10 @@ import { useEffect, useState } from 'react'
 import type { Agence } from '@/payload-types'
 import type { Theme } from '@/lib/theme'
 import { adresseEnLigne, lienItineraire, lienTelephone } from '@/lib/format'
+import { LIENS_MENU } from '@/lib/navigation'
 
+import { LienNav } from './LienNav'
 import { SelecteurTheme } from './SelecteurTheme'
-
-const LIENS = [
-  { href: '/location', libelle: 'À louer' },
-  { href: '/vente', libelle: 'À vendre' },
-]
 
 /** Menu déroulant affiché à la place de la navigation quand l'écran est étroit. */
 export function MenuMobile({ agence, theme }: { agence: Agence; theme: Theme }) {
@@ -59,15 +56,17 @@ export function MenuMobile({ agence, theme }: { agence: Agence; theme: Theme }) 
           className="absolute inset-x-0 top-full border-b border-bordure bg-fond px-4 py-4 shadow-lg"
         >
           <nav aria-label="Navigation principale" className="flex flex-col gap-1">
-            {LIENS.map(({ href, libelle }) => (
-              <Link
+            {LIENS_MENU.map(({ href, libelle }) => (
+              <LienNav
                 key={href}
                 href={href}
                 onClick={() => setOuvert(false)}
-                className="rounded-carte px-2 py-3 text-base font-semibold text-texte transition hover:bg-fond-alt"
+                className="rounded-carte px-2 py-3 text-base font-semibold transition"
+                auRepos="text-texte hover:bg-fond-alt"
+                surLaPage="bg-fond-alt text-primaire"
               >
                 {libelle}
-              </Link>
+              </LienNav>
             ))}
             <Link
               href="/contact"

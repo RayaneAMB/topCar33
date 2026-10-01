@@ -40,6 +40,12 @@
   --color-primaire-contraste: #ffffff;
   --color-petrole: #0196ae;
 
+  /* Deux couleurs de la charte qui ne changent pas avec le thème : elles servent
+     sur les fonds fixes, comme la bande claire de la bannière d'accueil. */
+  --color-anthracite: #282d2e;
+  --color-graphite: #5c5e60;
+  --color-cyan: #00c2d4;
+
   --color-succes: #0f7a4a;
   --color-succes-fond: #e3f5ec;
   --color-danger: #b4362c;
@@ -214,4 +220,113 @@
 .contenu-riche a {
   color: var(--color-primaire);
   text-decoration: underline;
+}
+
+/* ----------------------------------------------------------------------------
+   Voiture de fond (composant FondRotatif).
+   Les photos ont un fond blanc plein : « multiply » le fait disparaître dans la
+   page claire. En thème sombre on inverse l'image — le blanc devient noir, donc
+   invisible — et « screen » ne laisse passer que la carrosserie, éclaircie.
+   Ainsi la même photo sert dans les deux thèmes, sans rectangle blanc.
+   ---------------------------------------------------------------------------- */
+.fond-rotatif img {
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+}
+
+/* Détourée, la photo n'a plus de fond à cacher : aucune fusion, aucune inversion. */
+.fond-rotatif--detoure img {
+  filter: none;
+  mix-blend-mode: normal;
+  opacity: 0.2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) .fond-rotatif img {
+    opacity: 0.22;
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
+
+  /* Sur fond sombre, le décor prend le bleu pétrole de la charte : voir
+     `FiltrePetrole` dans FondRotatif.tsx. Plus opaque qu'en clair, parce
+     qu'une teinte foncée sur un fond presque noir s'efface vite. */
+  :root:not([data-theme='clair']) .fond-rotatif--detoure img {
+    opacity: 0.3;
+    filter: url('#teinte-petrole');
+    mix-blend-mode: normal;
+  }
+}
+
+:root[data-theme='sombre'] .fond-rotatif img {
+  opacity: 0.22;
+  filter: invert(1);
+  mix-blend-mode: screen;
+}
+
+:root[data-theme='sombre'] .fond-rotatif--detoure img {
+  opacity: 0.3;
+  filter: url('#teinte-petrole');
+  mix-blend-mode: normal;
+}
+
+/* Les panneaux posés par-dessus le décor — la bannière d'accueil et le pied de
+   page — le voilent à 75 %. En thème sombre ce voile n'apporte rien : le fond
+   alterné est à un cheveu du fond de page, l'œil ne les sépare pas. Il ne
+   faisait que manger les trois quarts de la voiture. On l'allège donc, et les
+   bordures suffisent à marquer les sections. En clair on n'y touche pas : là,
+   le gris se voit vraiment et fait son travail. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) .voile-decor {
+    background-color: color-mix(in srgb, var(--color-fond-alt) 40%, transparent);
+  }
+}
+
+:root[data-theme='sombre'] .voile-decor {
+  background-color: color-mix(in srgb, var(--color-fond-alt) 40%, transparent);
+}
+
+/* Le fond de page vit sur <html> : sans cela, le fond du <body> masquerait
+   le calque de la voiture, qui est placé derrière le contenu. */
+html {
+  background-color: var(--color-fond);
+}
+
+/* ----------------------------------------------------------------------------
+   Photo posée à même la page, sans cadre.
+   Les photos de voitures ont un fond blanc plein. « multiply » le fait
+   disparaître dans un fond clair ; en thème sombre on inverse l'image — le
+   blanc devient noir, donc invisible — et « screen » ne laisse que la voiture.
+   Même mécanique que le décor de fond, mais à pleine opacité.
+   ---------------------------------------------------------------------------- */
+.photo-fondue {
+  mix-blend-mode: multiply;
+}
+
+/* En thème sombre, « multiply » ne peut rien fondre sur du noir : on pose
+   derrière la photo un halo clair, sans bord net. Le fond blanc de la photo s'y
+   dissout, la voiture garde sa vraie couleur, et rien ne ressemble à un cadre. */
+.halo-photo {
+  position: absolute;
+  inset: 0;
+  display: none;
+  /* L'ellipse doit s'éteindre AVANT le bord du cadre : au-delà, le conteneur la
+     coupe net et le halo redevient un rectangle, exactement ce qu'on fuit. */
+  background: radial-gradient(
+    ellipse 50% 52% at 50% 52%,
+    rgb(255 255 255 / 92%) 0%,
+    rgb(255 255 255 / 84%) 40%,
+    rgb(255 255 255 / 40%) 70%,
+    rgb(255 255 255 / 0%) 100%
+  );
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) .halo-photo {
+    display: block;
+  }
+}
+
+:root[data-theme='sombre'] .halo-photo {
+  display: block;
 }

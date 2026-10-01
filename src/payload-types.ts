@@ -97,13 +97,17 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     agence: Agence;
+    apparence: ReglagesApparence;
     mails: ReglagesMails;
     'pages-legales': PagesLegales;
+    securite: ReglagesSecurite;
   };
   globalsSelect: {
     agence: AgenceSelect<false> | AgenceSelect<true>;
+    apparence: ApparenceSelect<false> | ApparenceSelect<true>;
     mails: MailsSelect<false> | MailsSelect<true>;
     'pages-legales': PagesLegalesSelect<false> | PagesLegalesSelect<true>;
+    securite: SecuriteSelect<false> | SecuriteSelect<true>;
   };
   locale: null;
   widgets: {
@@ -157,6 +161,10 @@ export interface Voiture {
    * La première photo est la photo principale.
    */
   photos: (string | Media)[];
+  /**
+   * Facultatif. Photographiez la voiture en tournant autour, du même endroit et à la même hauteur : 24 à 36 photos, dans l’ordre. Le visiteur pourra la faire tourner au doigt. En dessous de 8 photos, le tour ne s’affiche pas.
+   */
+  tour360?: (string | Media)[] | null;
   description?: {
     root: {
       type: string;
@@ -279,6 +287,14 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
+    tour?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
   };
 }
 /**
@@ -325,6 +341,11 @@ export interface Demande {
  */
 export interface User {
   id: string;
+  codeAuthEmpreinte?: string | null;
+  codeAuthExpiration?: string | null;
+  codeAuthTentatives?: number | null;
+  jetonEnAttente?: string | null;
+  identifiantAttente?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -446,6 +467,7 @@ export interface VoituresSelect<T extends boolean = true> {
   nomComplet?: T;
   categorie?: T;
   photos?: T;
+  tour360?: T;
   description?: T;
   caracteristiques?:
     | T
@@ -548,6 +570,16 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
+        tour?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
       };
 }
 /**
@@ -582,6 +614,11 @@ export interface DemandesSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  codeAuthEmpreinte?: T;
+  codeAuthExpiration?: T;
+  codeAuthTentatives?: T;
+  jetonEnAttente?: T;
+  identifiantAttente?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -671,6 +708,21 @@ export interface Agence {
   createdAt?: string | null;
 }
 /**
+ * Le décor animé du site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "apparence".
+ */
+export interface ReglagesApparence {
+  id: string;
+  /**
+   * Facultatif. Les vues d’une voiture prises tout autour, dans l’ordre : elle tournera en fond de page pendant que le visiteur descend. En dessous de 8 vues, le décor ne s’affiche pas. Cette voiture n’apparaît nulle part dans le catalogue.
+   */
+  decor360?: (string | Media)[] | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * Qui est prévenu quand un visiteur envoie le formulaire de contact.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -738,6 +790,21 @@ export interface PagesLegales {
   createdAt?: string | null;
 }
 /**
+ * Comment on entre dans l’administration.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "securite".
+ */
+export interface ReglagesSecurite {
+  id: string;
+  /**
+   * Après le mot de passe, un code à 6 chiffres est envoyé par email et doit être saisi. Il est valable 10 minutes. En cas de blocage (plus accès à la boîte mail), lancer « npm run 2fa:off » depuis le dossier du projet.
+   */
+  doubleAuth?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "agence_select".
  */
@@ -768,6 +835,16 @@ export interface AgenceSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "apparence_select".
+ */
+export interface ApparenceSelect<T extends boolean = true> {
+  decor360?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "mails_select".
  */
 export interface MailsSelect<T extends boolean = true> {
@@ -790,6 +867,16 @@ export interface MailsSelect<T extends boolean = true> {
 export interface PagesLegalesSelect<T extends boolean = true> {
   mentionsLegales?: T;
   confidentialite?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "securite_select".
+ */
+export interface SecuriteSelect<T extends boolean = true> {
+  doubleAuth?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

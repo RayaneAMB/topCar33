@@ -2,7 +2,14 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
-import { lireAgence, lirePagesLegales, listerCategories, listerVoitures, trouverVoiture } from './catalogue'
+import {
+  lireAgence,
+  lirePagesLegales,
+  listerCategories,
+  listerVoitures,
+  trouverVoiture,
+  lireApparence,
+} from './catalogue'
 import type { OffreVoiture } from './format'
 
 // Chaque lecture est faite une seule fois par requête, même si le layout et la page la demandent.
@@ -19,3 +26,5 @@ export const getVoitures = cache(async (offre?: OffreVoiture, categorieSlug?: st
 )
 
 export const getVoiture = cache(async (slug: string) => trouverVoiture(await getPayloadClient(), slug))
+
+export const getApparence = cache(async () => lireApparence(await getPayloadClient()))

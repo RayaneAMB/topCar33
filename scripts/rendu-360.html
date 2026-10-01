@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>Rendu 360</title>
+<style>html,body{margin:0;background:#fff}canvas{display:block}</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three'
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
+
+const LARGEUR = 900, HAUTEUR = 675
+const scene = new THREE.Scene()
+scene.background = new THREE.Color('#ffffff')
+
+const camera = new THREE.PerspectiveCamera(35, LARGEUR / HAUTEUR, 0.1, 5000)
+const rendu = new THREE.WebGLRenderer({ antialias: true })
+rendu.setSize(LARGEUR, HAUTEUR)
+rendu.setPixelRatio(2)
+document.body.appendChild(rendu.domElement)
+
+// Éclairage de studio : une dominante douce, deux sources pour dessiner les arêtes.
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8dee0, 2.2))
+const cle = new THREE.DirectionalLight(0xffffff, 2.4)
+cle.position.set(5, 8, 6)
+scene.add(cle)
+const contre = new THREE.DirectionalLight(0xffffff, 1.1)
+contre.position.set(-6, 4, -5)
+scene.add(contre)
+
+let rayon = 10, centre = new THREE.Vector3()
+
+const loader = new OBJLoader()
+loader.load(
+  new URLSearchParams(location.search).get('modele') || './modele.obj',
+  (objet) => {
+    // Le fichier contient le décor du studio : sol et panneaux d'éclairage.
+    // On ne garde que la voiture, sinon le cadrage se fait sur une scène vide.
+    const motif = new URLSearchParams(location.search).get('decor')
+    const decor = motif ? new RegExp(motif) : null
+    for (const enfant of [...objet.children]) {
+      if (decor?.test(enfant.name)) objet.remove(enfant)
+    }
+    objet.traverse((noeud) => {
+      if (noeud.isMesh) {
+        noeud.material = new THREE.MeshStandardMaterial({ color: '#7d858a', metalness: 0.55, roughness: 0.28 })
+      }
+    })
+    const boite = new THREE.Box3().setFromObject(objet)
+    boite.getCenter(centre)
+    const taille = boite.getSize(new THREE.Vector3())
+    rayon = Math.max(taille.x, taille.z) * 1.6
+    objet.position.sub(centre)
+    scene.add(objet)
+    ajouterOmbre(taille)
+    window.modelePret = true
+  },
+  undefined,
+  (erreur) => {
+    window.modeleErreur = String(erreur?.message || erreur)
+  },
+)
+
+/** Une ombre douce sous la voiture : sans elle, elle flotte dans le vide. */
+function ajouterOmbre(taille) {
+  const toile = document.createElement('canvas')
+  toile.width = toile.height = 256
+  const ctx = toile.getContext('2d')
+  const degrade = ctx.createRadialGradient(128, 128, 10, 128, 128, 128)
+  degrade.addColorStop(0, 'rgba(40,45,46,0.55)')
+  degrade.addColorStop(1, 'rgba(40,45,46,0)')
+  ctx.fillStyle = degrade
+  ctx.fillRect(0, 0, 256, 256)
+
+  const ombre = new THREE.Mesh(
+    new THREE.PlaneGeometry(taille.x * 1.25, taille.z * 1.1),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(toile), transparent: true, depthWrite: false }),
+  )
+  ombre.rotation.x = -Math.PI / 2
+  ombre.position.y = -taille.y / 2 + 0.01
+  scene.add(ombre)
+}
+
+/** Place la caméra à l'azimut demandé et rend une image. */
+window.rendreVue = (degres) => {
+  const angle = (degres * Math.PI) / 180
+  const hauteur = rayon * 0.22
+  camera.position.set(Math.sin(angle) * rayon, hauteur, Math.cos(angle) * rayon)
+  camera.lookAt(0, 0, 0)
+  rendu.render(scene, camera)
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,5 @@
 import type { MongooseAdapter } from '@payloadcms/db-mongodb'
 import config from '@/payload.config'
-import type { Voiture } from '@/payload-types'
 import { getPayload, type CollectionSlug, type Payload } from 'payload'
 import sharp from 'sharp'
 
@@ -88,6 +87,8 @@ type OptionsVoiture = {
   prixVente?: number
   annee?: number
   kilometrage?: number
+  /** Vues du tour à 360°, pour les tests qui en dépendent. */
+  tour360?: string[]
 }
 
 let compteurCategories = 0
@@ -127,6 +128,7 @@ export async function creerVoiture(payload: Payload, options: OptionsVoiture = {
             }
           : undefined,
       disponible: options.disponible ?? true,
+      tour360: options.tour360,
     },
   })
 }

@@ -12,6 +12,8 @@ export const E2E = {
   modele: 'Testmobile',
   modeleVente: 'Vendmobile',
   altPhoto: 'Photo E2E',
+  altTour: 'Vue tour E2E',
+  vuesTour: 8,
   email: 'e2e@topcar33.example',
 }
 
@@ -27,12 +29,34 @@ export async function nettoyerDonneesE2E(): Promise<void> {
   await payload.delete({ collection: 'voitures', where: { modele: { in: [E2E.modele, E2E.modeleVente] } } })
   await payload.delete({ collection: 'categories', where: { nom: { equals: E2E.categorie } } })
   await payload.delete({ collection: 'media', where: { alt: { equals: E2E.altPhoto } } })
+  await payload.delete({ collection: 'media', where: { alt: { like: E2E.altTour } } })
 }
 
 /** La marque est une fiche de la base : on la réutilise si elle existe déjà. */
 async function trouverOuCreerMarque(payload: Payload, nom: string) {
   const { docs } = await payload.find({ collection: 'marques', where: { nom: { equals: nom } }, limit: 1 })
   return docs[0] ?? (await payload.create({ collection: 'marques', data: { nom } }))
+}
+
+
+/** Huit vues unies, suffisantes pour que le tour à 360° s'affiche. */
+async function creerTour(payload: Payload): Promise<string[]> {
+  const ids: string[] = []
+  for (let index = 0; index < E2E.vuesTour; index += 1) {
+    const teinte = 30 + index * 20
+    const data = await sharp({
+      create: { width: 600, height: 450, channels: 3, background: { r: teinte, g: teinte, b: teinte } },
+    })
+      .png()
+      .toBuffer()
+    const media = await payload.create({
+      collection: 'media',
+      data: { alt: `${E2E.altTour} ${index}` },
+      file: { data, mimetype: 'image/png', name: `e2e-tour-${index}.png`, size: data.length },
+    })
+    ids.push(media.id)
+  }
+  return ids
 }
 
 export async function preparerDonneesE2E() {
@@ -56,6 +80,7 @@ export async function preparerDonneesE2E() {
       modele: E2E.modele,
       categorie: categorie.id,
       photos: [photo.id],
+      tour360: await creerTour(payload),
       caracteristiques: { boite: 'automatique', carburant: 'electrique', places: 4 },
       tarifs: { prixJour: 12, prixSemaine: 70 },
       disponible: true,

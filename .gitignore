@@ -51,3 +51,9 @@ node_modules/
 
 .claude/
 CLAUDE.md
+
+# Images rendues depuis un modèle 3D (scripts/rendu-360.mjs)
+rendu-360/
+
+# Photos détourées, régénérables avec scripts/detourer.mjs
+media/*-detoure.png

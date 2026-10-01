@@ -43,6 +43,26 @@ test.describe('Socle du site', () => {
     await expect(page.getByRole('button', { name: 'Ouvrir le menu' })).toBeVisible()
   })
 
+  test('le décor tournant habille toutes les pages, pied de page compris', async ({ page }) => {
+    for (const adresse of ['/', '/location', '/contact']) {
+      await page.goto(adresse)
+      await expect(page.locator('.fond-rotatif')).toHaveCount(1)
+    }
+
+    // Le pied de page doit laisser passer le décor : un fond opaque le couperait net.
+    // Tailwind exprime l'opacité en `color-mix`, d'où la comparaison au fond opaque.
+    const [pied, opaque] = await page.evaluate(() => {
+      const element = document.querySelector('footer')
+      const temoin = document.createElement('div')
+      temoin.className = 'bg-fond-alt'
+      document.body.append(temoin)
+      const couleurs = [getComputedStyle(element!).backgroundColor, getComputedStyle(temoin).backgroundColor]
+      temoin.remove()
+      return couleurs
+    })
+    expect(pied).not.toBe(opaque)
+  })
+
   test('une page inconnue affiche la page 404 en français', async ({ page }) => {
     const reponse = await page.goto('/cette-page-n-existe-pas')
     expect(reponse?.status()).toBe(404)

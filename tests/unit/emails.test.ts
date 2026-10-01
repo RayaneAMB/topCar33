@@ -71,8 +71,8 @@ describe('mailAgence', () => {
     expect(html).not.toContain('<script>')
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;')
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;')
-    // Les seules images du mail sont les nôtres : le logo et le titre.
-    expect(html.match(/<img/g)).toHaveLength(2)
+    // La seule image du mail est la nôtre : le logo. Le titre est du texte.
+    expect(html.match(/<img/g)).toHaveLength(1)
   })
 })
 
@@ -118,16 +118,19 @@ describe('mailClient', () => {
     const { html, attachments } = mailClient(demande, agence)
     expect(html).toContain('src="https://topcar33.com/marque/logo-mail.png"')
     expect(html).not.toContain('cid:logo-topcar33')
-    // Le titre reste joint : lui n'a pas d'adresse publique.
-    expect(attachments?.map(({ cid }) => cid)).toEqual(['titre-demande-bien-recue'])
+    // Le logo lié, il ne reste plus rien à joindre : le titre est du texte.
+    expect(attachments).toEqual([])
     vi.unstubAllEnvs()
   })
 
-  it('affiche le titre dans la police de la marque, en gardant le texte en repli', () => {
+  it('écrit le titre en texte, sans image à charger ni à bloquer', () => {
     const { html, attachments } = mailClient(demande, agence)
-    expect(html).toContain('src="cid:titre-demande-bien-recue"')
-    expect(html).toContain('alt="Demande bien reçue"')
-    expect(attachments?.some(({ cid }) => cid === 'titre-demande-bien-recue')).toBe(true)
+    expect(html).toContain('<h1')
+    expect(html).toContain('Demande bien reçue</h1>')
+    // Montserrat en capitales espacées : l'allure de la marque, sans image.
+    expect(html).toMatch(/<h1[^>]*font-family:'Montserrat'/)
+    expect(html).toMatch(/<h1[^>]*text-transform:uppercase/)
+    expect(attachments?.some(({ cid }) => cid.startsWith('titre-'))).toBe(false)
   })
 
   it('neutralise le HTML tapé par le client', () => {

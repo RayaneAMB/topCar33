@@ -148,63 +148,17 @@ function bouton(lien: string, libelle: string): string {
   )
 }
 
-/** Même règle de nom que `scripts/titres-mail.mjs`. */
-function slugTitre(texte: string): string {
-  return texte
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[’']/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
-
-const titresEnCache = new Map<string, { contenu: Buffer; largeur: number } | null>()
-
 /**
- * Le titre prérendu en Bank Gothic. Gmail supprimant les polices personnalisées,
- * l'image est le seul moyen d'afficher la police de la marque chez tout le monde.
- * Le texte reste dans l'attribut `alt` : rien n'est perdu si les images sont bloquées.
- * Images générées par `node scripts/titres-mail.mjs`.
+ * Le titre du mail, en vrai texte.
+ *
+ * Il a longtemps été une image prérendue, seul moyen d'imposer Bank Gothic à
+ * Gmail. Le remède coûtait plus cher que le mal : une pièce jointe par mail, un
+ * titre qui disparaît quand le client bloque les images, et rien de
+ * sélectionnable. Montserrat en capitales espacées en donne l'allure, et
+ * s'affiche partout.
  */
-function imageTitre(texte: string): { contenu: Buffer; largeur: number; cid: string } | null {
-  const nom = `titre-${slugTitre(texte)}`
-  if (!titresEnCache.has(nom)) {
-    try {
-      const contenu = readFileSync(join(process.cwd(), 'public', 'mail', `${nom}.png`))
-      // Largeur intrinsèque, lue dans l'en-tête IHDR ; l'image est rendue en double.
-      titresEnCache.set(nom, { contenu, largeur: Math.round(contenu.readUInt32BE(16) / 2) })
-    } catch {
-      titresEnCache.set(nom, null)
-    }
-  }
-  const image = titresEnCache.get(nom)
-  return image ? { ...image, cid: nom } : null
-}
-
-/** Le titre, en image si elle existe, sinon en texte avec la police de repli. */
-function titreAvecImage(texte: string): { html: string; piece?: PieceJointe } {
-  const image = imageTitre(texte)
-  if (!image) return { html: titre(texte) }
-
-  // Les styles de police sur l'image habillent le texte de remplacement
-  // quand le client mail bloque les images.
-  const html =
-    '<h1 style="margin:0">' +
-    `<img src="cid:${image.cid}" alt="${escapeHtml(texte)}" width="${image.largeur}" ` +
-    `style="display:block;width:${image.largeur}px;max-width:100%;height:auto;border:0;` +
-    `font-family:${POLICE_TITRE};font-size:21px;font-weight:700;letter-spacing:.06em;` +
-    `text-transform:uppercase;color:${ANTHRACITE}">` +
-    '</h1>'
-
-  return {
-    html,
-    piece: { filename: `${image.cid}.png`, content: image.contenu, cid: image.cid, contentType: 'image/png' },
-  }
-}
-
 function titre(texte: string): string {
-  return `<h1 style="margin:0;font-family:${POLICE_TITRE};font-size:21px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${ANTHRACITE}">${escapeHtml(texte)}</h1>`
+  return `<h1 style="margin:0;font-family:${POLICE};font-size:21px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${ANTHRACITE}">${escapeHtml(texte)}</h1>`
 }
 
 function paragraphe(html: string, marge = '16px 0 0'): string {
@@ -275,9 +229,8 @@ export function mailAgence(demande: DemandeMail, urlAdmin: string, agence?: Agen
     { libelle: 'Voiture', valeur: voiture },
   ]
 
-  const enTete = titreAvecImage(objet)
   const corps = [
-    enTete.html,
+    titre(objet),
     paragraphe(`Reçue le ${new Date().toLocaleDateString('fr-FR')} via le formulaire du site.`, '10px 0 0'),
     lignesInfos(lignes),
     citation('Son message', demande.message),
@@ -304,7 +257,7 @@ export function mailAgence(demande: DemandeMail, urlAdmin: string, agence?: Agen
   ].join('\n')
 
   const suffixe = demande.voiture ? ` (${demande.voiture})` : ''
-  return { subject: `${objet} — ${demande.prenom} ${demande.nom}${suffixe}`, html, text, attachments: piecesJointes(enTete.piece) }
+  return { subject: `${objet} — ${demande.prenom} ${demande.nom}${suffixe}`, html, text, attachments: piecesJointes() }
 }
 
 /** Accusé de réception envoyé au client. */
@@ -327,9 +280,8 @@ export function mailClient(demande: DemandeMail, agence: AgenceMail): ContenuMai
     coordonnees.push({ libelle: creneau.jours, valeur: creneau.heures })
   }
 
-  const enTete = titreAvecImage('Demande bien reçue')
   const corps = [
-    enTete.html,
+    titre('Demande bien reçue'),
     paragraphe(`Bonjour ${escapeHtml(demande.prenom)},`, '18px 0 0'),
     paragraphe('Nous avons votre demande sous les yeux et nous vous recontactons rapidement.'),
     `<div style="margin:24px 0 0;padding:15px 18px;background:#f7fafa;border:1px solid ${TRAIT};border-radius:6px">` +
@@ -369,5 +321,43 @@ export function mailClient(demande: DemandeMail, agence: AgenceMail): ContenuMai
     `L’équipe ${agence.nom}`,
   ].join('\n')
 
-  return { subject: `Votre demande a bien été reçue — ${agence.nom}`, html, text, attachments: piecesJointes(enTete.piece) }
+  return { subject: `Votre demande a bien été reçue — ${agence.nom}`, html, text, attachments: piecesJointes() }
+}
+
+/**
+ * Code à 6 chiffres pour entrer dans l'administration.
+ * Volontairement sobre : pas de lien cliquable, rien à faire d'autre que
+ * recopier le code — c'est ce qui rend ce genre de mail difficile à imiter.
+ */
+export function mailCodeConnexion(code: string, nomAgence: string): ContenuMail {
+  const corps = [
+    titre('Code de connexion'),
+    paragraphe(`Voici le code pour accéder à l’administration de ${escapeHtml(nomAgence)}.`, '18px 0 0'),
+    `<div style="margin:24px 0 0;padding:20px;background:#f7fafa;border:1px solid ${TRAIT};border-radius:6px;text-align:center">` +
+      `<div style="font-family:${POLICE};font-size:34px;font-weight:700;letter-spacing:.32em;color:${ANTHRACITE};padding-left:.32em">${escapeHtml(code)}</div>` +
+      '</div>',
+    paragraphe('Ce code est valable 10 minutes et ne sert qu’une fois.'),
+    paragraphe(
+      'Si vous n’êtes pas à l’origine de cette connexion, ignorez ce message et changez votre mot de passe : quelqu’un connaît vos identifiants.',
+      '20px 0 0',
+    ),
+  ].join('')
+
+  const html = enveloppe({
+    nomAgence,
+    apercu: `Votre code de connexion : ${code}`,
+    corps,
+    pied: 'Message automatique. Ne transmettez ce code à personne.',
+  })
+
+  const text = [
+    'Code de connexion',
+    '',
+    `Voici le code pour accéder à l’administration de ${nomAgence} : ${code}`,
+    '',
+    'Ce code est valable 10 minutes et ne sert qu’une fois.',
+    'Si vous n’êtes pas à l’origine de cette connexion, ignorez ce message et changez votre mot de passe.',
+  ].join('\n')
+
+  return { subject: `${code} — votre code de connexion`, html, text, attachments: piecesJointes() }
 }
