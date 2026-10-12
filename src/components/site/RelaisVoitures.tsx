@@ -8,7 +8,7 @@ import { apresGlissement } from '@/lib/carrousel'
 import type { Vedette } from '@/lib/vedette'
 
 /** Temps d'affichage d'une voiture avant que la suivante entre. */
-const DUREE_MS = 4500
+const DUREE_MS = 2000
 
 /** Distance à parcourir pour changer de voiture au doigt. */
 const SEUIL_PX = 60

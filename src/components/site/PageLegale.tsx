@@ -2,6 +2,8 @@ import type { ComponentProps } from 'react'
 
 import { RichTexte } from '@/components/RichTexte'
 
+import { ApparitionAuDefilement } from './ApparitionAuDefilement'
+
 type Props = {
   titre: string
   /** Le champ est facultatif dans l'administration : il peut arriver vide. */
@@ -23,7 +25,9 @@ export function PageLegale({ titre, contenu, vide }: Props) {
       <span className="barre-diagonale" aria-hidden="true" />
       <h1 className="mt-5 text-3xl">{titre}</h1>
       {contenu ? (
-        <RichTexte data={contenu} className="mt-8 text-texte-doux" />
+        <ApparitionAuDefilement>
+          <RichTexte data={contenu} className="mt-8 text-texte-doux" />
+        </ApparitionAuDefilement>
       ) : (
         <p className="mt-8 text-texte-doux">{vide}</p>
       )}

@@ -286,6 +286,70 @@
   background-color: color-mix(in srgb, var(--color-fond-alt) 40%, transparent);
 }
 
+/* ----------------------------------------------------------------------------
+   Entrée des voitures au défilement (composant ApparitionAuDefilement).
+
+   Elles arrivent par la gauche, pas par le bas : une voiture se range, elle ne
+   surgit pas du sol. Et comme le décalage suit la colonne, une rangée ne
+   s'allume pas d'un bloc — elle se remplit, de gauche à droite, comme une file
+   qui se gare.
+
+   L'état « attente » n'est jamais rendu par le serveur : sans JavaScript, les
+   voitures sont simplement là. Voir le commentaire du composant.
+   ---------------------------------------------------------------------------- */
+[data-apparition] {
+  /* Décélération franche, comme un freinage à l'arrivée sur la place. */
+  transition:
+    opacity 600ms ease-out,
+    transform 600ms cubic-bezier(0.16, 0.84, 0.44, 1);
+  transition-delay: var(--retard-apparition, 0ms);
+}
+
+[data-apparition='attente'] {
+  opacity: 0;
+  transform: translateX(-2.5rem);
+}
+
+[data-apparition='entree'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Le décalage dépend du rang dans la rangée, donc du nombre de colonnes — que
+   seul le CSS connaît. Une colonne : rien à décaler, chaque carte arrive seule. */
+@media (min-width: 640px) {
+  .grille-voitures > li:nth-child(2n + 2) {
+    --retard-apparition: 90ms;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* La règle à deux colonnes vaut encore ici : il faut donc remettre à zéro la
+     première colonne, sans quoi la 4e carte — en tête de rangée — hériterait du
+     décalage prévu pour une deuxième colonne. */
+  .grille-voitures > li:nth-child(3n + 1) {
+    --retard-apparition: 0ms;
+  }
+  .grille-voitures > li:nth-child(3n + 2) {
+    --retard-apparition: 90ms;
+  }
+  .grille-voitures > li:nth-child(3n + 3) {
+    --retard-apparition: 180ms;
+  }
+}
+
+/* Ceinture et bretelles : le composant n'anime déjà pas dans ce cas, mais si le
+   réglage change en cours de visite, rien ne doit se mettre à bouger. */
+@media (prefers-reduced-motion: reduce) {
+  [data-apparition] {
+    transition: none;
+  }
+  [data-apparition='attente'] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Le fond de page vit sur <html> : sans cela, le fond du <body> masquerait
    le calque de la voiture, qui est placé derrière le contenu. */
 html {

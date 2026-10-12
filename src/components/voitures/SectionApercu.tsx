@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import type { Voiture } from '@/payload-types'
+import { ApparitionAuDefilement } from '@/components/site/ApparitionAuDefilement'
 
 import { ListeVoitures } from './ListeVoitures'
 
@@ -22,14 +23,14 @@ export function SectionApercu({
 }) {
   return (
     <section id={id} aria-labelledby={`${id}-titre`} className="mx-auto max-w-6xl scroll-mt-8 px-4 py-12">
-      <div className="mb-7 flex flex-wrap items-center justify-between gap-4 border-b border-bordure pb-4">
+      <ApparitionAuDefilement className="mb-7 flex flex-wrap items-center justify-between gap-4 border-b border-bordure pb-4">
         <h2 id={`${id}-titre`} className="text-2xl">
           {titre}
         </h2>
         <Link href={lien} className="text-sm font-semibold text-primaire underline-offset-4 transition hover:underline">
           {libelleLien}
         </Link>
-      </div>
+      </ApparitionAuDefilement>
       <ListeVoitures voitures={voitures} vide={vide} />
     </section>
   )

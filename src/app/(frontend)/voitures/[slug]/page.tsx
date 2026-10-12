@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { ApparitionAuDefilement } from '@/components/site/ApparitionAuDefilement'
 import { RichTexte } from '@/components/RichTexte'
 import { BadgeDispo } from '@/components/voitures/BadgeDispo'
 import { Caracteristiques } from '@/components/voitures/Caracteristiques'
@@ -76,7 +77,7 @@ export default async function PageVoiture({ params }: Params) {
           )}
         </div>
 
-        <div>
+        <ApparitionAuDefilement>
           <div className="flex flex-wrap items-center gap-3">
             <BadgeDispo offre={voiture.offre} disponible={voiture.disponible !== false} />
             {categorie && (
@@ -109,16 +110,18 @@ export default async function PageVoiture({ params }: Params) {
           >
             Contacter pour ce véhicule
           </Link>
-        </div>
+        </ApparitionAuDefilement>
       </div>
 
       {voiture.description && (
-        <section aria-labelledby="titre-description" className="mt-14 max-w-3xl">
-          <h2 id="titre-description" className="text-xl">
-            Description
-          </h2>
-          <RichTexte data={voiture.description} className="mt-4 text-texte-doux" />
-        </section>
+        <ApparitionAuDefilement>
+          <section aria-labelledby="titre-description" className="mt-14 max-w-3xl">
+            <h2 id="titre-description" className="text-xl">
+              Description
+            </h2>
+            <RichTexte data={voiture.description} className="mt-4 text-texte-doux" />
+          </section>
+        </ApparitionAuDefilement>
       )}
     </div>
   )

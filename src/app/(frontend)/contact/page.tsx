@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import { FormulaireContact } from '@/components/contact/FormulaireContact'
 import { NousTrouver } from '@/components/contact/NousTrouver'
+import { ApparitionAuDefilement } from '@/components/site/ApparitionAuDefilement'
 import { getAgence, getVoitures } from '@/lib/donnees'
 import { estAVendre } from '@/lib/format'
 
@@ -43,7 +44,9 @@ export default async function PageContact({
         </p>
         <FormulaireContact action={envoyerDemande} voitures={options} voitureInitiale={voitureInitiale} />
       </section>
-      <NousTrouver agence={agence} />
+      <ApparitionAuDefilement>
+        <NousTrouver agence={agence} />
+      </ApparitionAuDefilement>
     </div>
   )
 }
