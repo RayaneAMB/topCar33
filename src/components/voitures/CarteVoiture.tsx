@@ -21,9 +21,11 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
   return (
     <article
       data-testid="carte-voiture"
-      className="relative flex h-full flex-col overflow-hidden rounded-carte border border-bordure bg-surface transition hover:border-primaire"
+      className="carte-voiture relative flex h-full flex-col overflow-hidden rounded-carte border border-bordure bg-surface transition hover:border-primaire"
     >
-      <div className="relative aspect-[16/10] bg-fond-alt">
+      {/* `overflow-hidden` retient l'agrandissement au survol : la photo est en
+          position absolue, sans quoi elle déborderait par-dessus le titre. */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-fond-alt">
         {src && (
           <Image
             src={src}
@@ -59,7 +61,7 @@ export function CarteVoiture({ voiture }: { voiture: Voiture }) {
           </p>
           <Link
             href={`/contact?voiture=${voiture.slug}`}
-            className="relative z-10 rounded-carte border border-petrole px-3 py-1.5 text-sm font-semibold text-primaire transition hover:bg-primaire hover:text-primaire-contraste"
+            className="bouton-action relative z-10 rounded-carte border border-petrole px-3 py-1.5 text-sm font-semibold text-primaire transition hover:bg-primaire hover:text-primaire-contraste"
           >
             Contacter
           </Link>

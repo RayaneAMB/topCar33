@@ -28,13 +28,13 @@ export default async function Accueil() {
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 href="/location"
-                className="rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
+                className="bouton-action rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
               >
                 Voir les voitures à louer
               </Link>
               <Link
                 href="/vente"
-                className="rounded-carte border border-petrole px-6 py-3 font-semibold text-primaire transition hover:bg-primaire hover:text-primaire-contraste"
+                className="bouton-action rounded-carte border border-petrole px-6 py-3 font-semibold text-primaire transition hover:bg-primaire hover:text-primaire-contraste"
               >
                 Voir les voitures à vendre
               </Link>

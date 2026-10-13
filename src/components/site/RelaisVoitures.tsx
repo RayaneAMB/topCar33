@@ -160,7 +160,7 @@ export function RelaisVoitures({ vedettes }: { vedettes: Vedette[] }) {
               onClick={() => setActif(index)}
               aria-label={`Voir ${vedette.titre}`}
               aria-current={index === actif}
-              className={`h-2.5 rounded-full transition-all ${
+              className={`bouton-controle h-2.5 rounded-full transition-all ${
                 index === actif ? 'w-7 bg-primaire' : 'w-2.5 bg-bordure hover:bg-texte-doux'
               }`}
             />

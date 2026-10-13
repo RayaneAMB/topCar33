@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { Categorie } from '@/payload-types'
 
 const classeFiltre = (actif: boolean) =>
-  `rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
+  `bouton-controle rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
     actif
       ? 'border-primaire bg-primaire text-primaire-contraste'
       : 'border-bordure text-texte-doux hover:border-petrole hover:text-texte'

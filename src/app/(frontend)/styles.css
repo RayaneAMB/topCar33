@@ -350,6 +350,150 @@
   }
 }
 
+/* ----------------------------------------------------------------------------
+   Liens de la navigation principale.
+
+   La charte a déjà sa signature : la barre diagonale qui ouvre chaque section.
+   On la reprend ici en plus fin, sous le lien, plutôt qu'un soulignement droit
+   qui n'appartiendrait à personne. Elle se déplie depuis la gauche, comme tout
+   ce qui entre sur ce site.
+
+   Les trois états se distinguent, ce qui n'était pas le cas avant : au repos le
+   texte est gris et nu ; au survol il s'éclaircit et la barre se déplie ; sur sa
+   propre page il passe au bleu et la barre reste. Sans quoi on ne pouvait pas
+   savoir si l'on survolait un lien ou si l'on y était déjà.
+   ---------------------------------------------------------------------------- */
+.lien-nav {
+  position: relative;
+}
+
+.lien-nav::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.5rem;
+  /* Courte et épaisse, à l'image de `.barre-diagonale` : sur un filet de 3 px,
+     l'inclinaison ne décalerait les bords que d'un pixel et ne se verrait pas.
+     À 5 px, la diagonale se lit — c'est elle qui distingue cette marque d'un
+     soulignement ordinaire. */
+  width: 1.35rem;
+  height: 0.3125rem;
+  background-color: var(--color-primaire);
+  /* Repliée à gauche : elle s'ouvre dans le sens de la lecture. */
+  transform: skewX(-20deg) scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .lien-nav:hover::after {
+    transform: skewX(-20deg) scaleX(1);
+  }
+}
+
+/* L'état « page courante » est déjà porté par `aria-current` pour les lecteurs
+   d'écran : autant qu'il porte aussi le dessin, plutôt qu'une classe de plus. */
+.lien-nav[aria-current='page']::after {
+  transform: skewX(-20deg) scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lien-nav::after {
+    transition: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Carte de voiture au survol.
+
+   La carte ne bouge pas : c'est la voiture qui avance. Faire léviter la boîte
+   est le geste que fait tout le monde, et il déplace le cadre, le prix et le
+   bouton pour rien. Ici le cadre tient, et le véhicule — le seul contenu qui
+   intéresse vraiment — se rapproche dans sa fenêtre.
+
+   Lent à dessein : 420 ms, le double d'un bouton. Un bouton répond, une photo
+   respire.
+   ---------------------------------------------------------------------------- */
+.carte-voiture img {
+  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .carte-voiture:hover img {
+    transform: scale(1.045);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carte-voiture img {
+    transition: none;
+  }
+  .carte-voiture:hover img {
+    transform: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Mouvement des boutons.
+
+   Le contenu du site arrive par la gauche ; les actions, elles, poussent vers
+   la droite — le sens de la marche. Un bouton qui emmène quelque part avance
+   d'un cheveu quand on le vise, puis s'enfonce quand on appuie.
+
+   Les commandes qui n'emmènent nulle part — puces du carrousel, bascule de
+   thème, miniatures, filtres — ne reçoivent que l'enfoncement : les faire
+   avancer annoncerait un départ qui n'a pas lieu.
+   ---------------------------------------------------------------------------- */
+.bouton-action,
+.bouton-controle {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    background-color 180ms,
+    border-color 180ms,
+    color 180ms,
+    /* La puce active du carrousel s'allonge : sans cette ligne, cette
+       déclaration écraserait son animation de largeur. */ width 180ms;
+}
+
+/* Réservé aux pointeurs qui survolent vraiment : sur un écran tactile, l'état
+   de survol reste collé après le doigt. */
+@media (hover: hover) {
+  .bouton-action:hover {
+    transform: translateX(3px);
+  }
+}
+
+/* L'appui garde l'avancée et comprime : le bouton s'enfonce là où il est,
+   au lieu de revenir en arrière sous le doigt. */
+.bouton-action:active {
+  transform: translateX(3px) scale(0.96);
+}
+
+.bouton-controle:active {
+  transform: scale(0.93);
+}
+
+/* Un bouton désactivé ne réagit pas : le faire bouger promettrait une action. */
+.bouton-action:disabled,
+.bouton-controle:disabled {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bouton-action,
+  .bouton-controle {
+    transition:
+      background-color 180ms,
+      border-color 180ms,
+      color 180ms;
+  }
+  .bouton-action:hover,
+  .bouton-action:active,
+  .bouton-controle:active {
+    transform: none;
+  }
+}
+
 /* Le fond de page vit sur <html> : sans cela, le fond du <body> masquerait
    le calque de la voiture, qui est placé derrière le contenu. */
 html {

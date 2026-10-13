@@ -23,8 +23,10 @@ export function EnTete({ agence, theme }: { agence: Agence; theme: Theme }) {
             <LienNav
               key={href}
               href={href}
-              className="font-medium transition"
-              auRepos="text-texte-doux hover:text-primaire"
+              className="lien-nav font-medium transition"
+              // Le survol éclaircit, la page courante colore : deux états
+              // distincts, là où le bleu servait aux deux.
+              auRepos="text-texte-doux hover:text-texte"
               surLaPage="text-primaire"
             >
               {libelle}
@@ -32,7 +34,7 @@ export function EnTete({ agence, theme }: { agence: Agence; theme: Theme }) {
           ))}
           <Link
             href="/contact"
-            className="rounded-carte bg-primaire px-4 py-2 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
+            className="bouton-action rounded-carte bg-primaire px-4 py-2 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
           >
             Nous contacter
           </Link>

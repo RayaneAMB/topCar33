@@ -159,7 +159,7 @@ export function FormulaireContact({ action, voitures, voitureInitiale }: Props) 
       <button
         type="submit"
         disabled={enCours}
-        className="rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte disabled:opacity-60"
+        className="bouton-action rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte disabled:opacity-60"
       >
         {enCours ? 'Envoi…' : 'Envoyer ma demande'}
       </button>

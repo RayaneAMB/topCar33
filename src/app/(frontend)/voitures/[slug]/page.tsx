@@ -106,7 +106,7 @@ export default async function PageVoiture({ params }: Params) {
 
           <Link
             href={`/contact?voiture=${voiture.slug}`}
-            className="mt-8 inline-block rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
+            className="bouton-action mt-8 inline-block rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
           >
             Contacter pour ce véhicule
           </Link>

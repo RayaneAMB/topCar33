@@ -10,7 +10,7 @@ const CLASSE_CHAMP =
   'mt-1 w-full rounded-carte border border-bordure bg-fond-alt px-3 py-2 text-texte transition placeholder:text-texte-doux focus:border-primaire'
 
 const CLASSE_BOUTON =
-  'mt-6 w-full rounded-carte bg-primaire px-4 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte disabled:opacity-60'
+  'bouton-action mt-6 w-full rounded-carte bg-primaire px-4 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte disabled:opacity-60'
 
 function Message({ texte }: { texte: string }) {
   return (

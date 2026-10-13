@@ -35,7 +35,7 @@ export function MenuMobile({ agence, theme }: { agence: Agence; theme: Theme }) 
         aria-expanded={ouvert}
         aria-controls="menu-mobile"
         aria-label={ouvert ? 'Fermer le menu' : 'Ouvrir le menu'}
-        className="rounded-carte border border-bordure p-2 text-texte transition hover:border-primaire"
+        className="bouton-controle rounded-carte border border-bordure p-2 text-texte transition hover:border-primaire"
       >
         <svg
           viewBox="0 0 24 24"
@@ -71,7 +71,7 @@ export function MenuMobile({ agence, theme }: { agence: Agence; theme: Theme }) 
             <Link
               href="/contact"
               onClick={() => setOuvert(false)}
-              className="mt-2 rounded-carte bg-primaire px-4 py-3 text-center font-semibold text-primaire-contraste"
+              className="bouton-action mt-2 rounded-carte bg-primaire px-4 py-3 text-center font-semibold text-primaire-contraste"
             >
               Nous contacter
             </Link>

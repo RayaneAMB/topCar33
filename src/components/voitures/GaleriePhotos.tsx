@@ -33,7 +33,7 @@ export function GaleriePhotos({ photos, titre }: { photos: PhotoGalerie[]; titre
                 onClick={() => setIndex(position)}
                 aria-label={`Afficher la photo ${position + 1}`}
                 aria-pressed={position === index}
-                className={`relative block aspect-[4/3] w-full overflow-hidden rounded-md border-2 ${
+                className={`bouton-controle relative block aspect-[4/3] w-full overflow-hidden rounded-md border-2 ${
                   position === index ? 'border-primaire' : 'border-transparent'
                 }`}
               >

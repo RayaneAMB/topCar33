@@ -8,7 +8,7 @@ export default function Erreur({ reset }: { error: Error & { digest?: string }; 
       <button
         type="button"
         onClick={() => reset()}
-        className="mt-8 rounded-lg bg-primaire px-5 py-2.5 font-semibold text-primaire-contraste"
+        className="bouton-action mt-8 rounded-lg bg-primaire px-5 py-2.5 font-semibold text-primaire-contraste"
       >
         Réessayer
       </button>

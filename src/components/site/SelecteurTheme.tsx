@@ -56,7 +56,7 @@ export function SelecteurTheme({ themeInitial }: { themeInitial: Theme }) {
             onClick={() => choisir(valeur)}
             aria-pressed={actif}
             title={libelle}
-            className={`rounded-full p-1.5 transition ${
+            className={`bouton-controle rounded-full p-1.5 transition ${
               actif ? 'bg-primaire text-primaire-contraste' : 'text-texte-doux hover:text-texte'
             }`}
           >
