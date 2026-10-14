@@ -17,7 +17,7 @@ export const Agence: GlobalConfig = {
       name: 'accroche',
       label: 'Titre de la bannière d’accueil',
       type: 'text',
-      defaultValue: 'Louez la voiture qu’il vous faut.',
+      defaultValue: 'TROUVEZ, ACHETEZ, ROULEZ.',
     },
     { name: 'sousAccroche', label: 'Sous-titre de la bannière d’accueil', type: 'text' },
     {

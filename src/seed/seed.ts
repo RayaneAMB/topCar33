@@ -71,7 +71,7 @@ const VOITURES: VoitureTemporaire[] = [
 
 const AGENCE_TEMPORAIRE = {
   nom: 'TopCar33',
-  accroche: 'Louez la voiture qu’il vous faut.',
+  accroche: 'TROUVEZ, ACHETEZ, ROULEZ.',
   sousAccroche: 'Véhicules récents et entretenus, à partir de 35 € par jour.',
   adresse: { rue: '296 avenue Pasteur', codePostal: '33185', ville: 'Le Haillan' },
   telephone: '05 00 00 00 00',

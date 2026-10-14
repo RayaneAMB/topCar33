@@ -22,7 +22,7 @@ export default async function Accueil() {
           <div>
             <span className="barre-diagonale" aria-hidden="true" />
             <h1 className="mt-6 max-w-2xl text-4xl leading-tight sm:text-5xl">
-              {agence.accroche || 'Louez la voiture qu’il vous faut.'}
+              {agence.accroche || 'TROUVEZ, ACHETEZ, ROULEZ.'}
             </h1>
             {agence.sousAccroche && <p className="mt-5 max-w-lg text-lg text-texte-doux">{agence.sousAccroche}</p>}
             <div className="mt-9 flex flex-wrap gap-3">
