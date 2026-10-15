@@ -1,6 +1,9 @@
+import { rm } from 'node:fs/promises'
+import { join } from 'node:path'
 import type { CollectionConfig } from 'payload'
 
 import { connecte, tousLesVisiteurs } from '../access'
+import { detourerFichier, fichiersAffiches, nomDetoure } from '../lib/images/detourerFichier'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -11,6 +14,64 @@ export const Media: CollectionConfig = {
     create: connecte,
     update: connecte,
     delete: connecte,
+  },
+  hooks: {
+    /**
+     * Détoure la photo dès qu'elle est versée : l'agence n'a plus de commande à
+     * lancer, elle dépose la photo et le site l'affiche sans fond.
+     *
+     * Après coup, et non avant : les vignettes que l'on détoure sont produites
+     * par Payload pendant l'enregistrement, elles n'existent pas plus tôt.
+     *
+     * Un échec n'interrompt jamais le versement — on perdrait la photo pour un
+     * détail d'affichage. Le site retombe alors sur l'original, et
+     * `scripts/detourer.mjs` rattrapera le coup.
+     */
+    afterChange: [
+      async ({ doc, req }) => {
+        const dossier = process.env.MEDIA_DIR || 'media'
+        const noms: string[] = [
+          doc.filename,
+          ...Object.values(doc.sizes ?? {}).map((taille) => (taille as { filename?: string })?.filename),
+        ].filter((nom): nom is string => typeof nom === 'string')
+
+        for (const nom of fichiersAffiches(noms)) {
+          try {
+            const produit = await detourerFichier(dossier, nom)
+            if (produit) req.payload.logger.info(`Détourage : ${nom} → ${produit}`)
+          } catch (erreur) {
+            req.payload.logger.warn(`Détourage impossible pour ${nom} : ${(erreur as Error).message}`)
+          }
+        }
+
+        return doc
+      },
+    ],
+
+    /**
+     * Payload efface ses propres fichiers, pas les nôtres : sans ceci, chaque
+     * photo supprimée laisserait ses détourages derrière elle, et le dossier
+     * media se remplirait de fichiers que plus rien ne sert.
+     */
+    afterDelete: [
+      async ({ doc, req }) => {
+        const dossier = process.env.MEDIA_DIR || 'media'
+        const noms: string[] = [
+          doc.filename,
+          ...Object.values(doc.sizes ?? {}).map((taille) => (taille as { filename?: string })?.filename),
+        ].filter((nom): nom is string => typeof nom === 'string')
+
+        for (const nom of noms) {
+          try {
+            await rm(join(dossier, nomDetoure(nom)), { force: true })
+          } catch (erreur) {
+            req.payload.logger.warn(`Détourage non supprimé pour ${nom} : ${(erreur as Error).message}`)
+          }
+        }
+
+        return doc
+      },
+    ],
   },
   fields: [
     {

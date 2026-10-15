@@ -45,15 +45,7 @@ export default async function Accueil() {
         </div>
       </section>
 
-      <SectionApercu
-        id="a-louer"
-        titre="Nos voitures à louer"
-        lien="/location"
-        libelleLien="Voir toutes nos voitures à louer"
-        voitures={location.voitures}
-        vide="Aucune voiture à louer pour le moment."
-      />
-
+      {/* La vente passe devant : l'accroche de la bannière annonce « ACHETEZ ». */}
       <SectionApercu
         id="a-vendre"
         titre="Nos voitures à vendre"
@@ -61,6 +53,15 @@ export default async function Accueil() {
         libelleLien="Voir toutes nos voitures à vendre"
         voitures={vente.voitures}
         vide="Aucune voiture à vendre pour le moment."
+      />
+
+      <SectionApercu
+        id="a-louer"
+        titre="Nos voitures à louer"
+        lien="/location"
+        libelleLien="Voir toutes nos voitures à louer"
+        voitures={location.voitures}
+        vide="Aucune voiture à louer pour le moment."
       />
     </>
   )
