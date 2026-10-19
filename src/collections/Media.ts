@@ -94,6 +94,11 @@ export const Media: CollectionConfig = {
       // Un tour à 360° charge 24 à 36 images d'affilée : elles doivent rester
       // légères, sinon la rotation saccade sur mobile.
       { name: 'tour', width: 600 },
+      // Vue intérieure : une caméra 360 sort du 6000 à 8000 px de large, mais
+      // bien des téléphones refusent une texture de plus de 4096 px et
+      // n'affichent alors rien. Payload n'agrandit jamais une photo : les
+      // photos ordinaires, toutes plus étroites, n'en reçoivent pas.
+      { name: 'panorama', width: 4096 },
     ],
   },
 }

@@ -7,8 +7,8 @@ import { RichTexte } from '@/components/RichTexte'
 import { BadgeDispo } from '@/components/voitures/BadgeDispo'
 import { Caracteristiques } from '@/components/voitures/Caracteristiques'
 import { GaleriePhotos } from '@/components/voitures/GaleriePhotos'
-import { Tour360 } from '@/components/voitures/Tour360'
 import { TableauInfos } from '@/components/voitures/TableauInfos'
+import { VueInterieure } from '@/components/voitures/VueInterieure'
 import { getVoiture } from '@/lib/donnees'
 import {
   descriptionVoiture,
@@ -21,8 +21,8 @@ import {
   prixPrincipal,
   urlPhoto,
 } from '@/lib/format'
-import { photoDetouree, photosDetourees } from '@/lib/images/detouree'
-import { imagesTour } from '@/lib/tour360'
+import { photoDetouree } from '@/lib/images/detouree'
+import { estUnPanorama, urlPanorama } from '@/lib/panorama'
 
 type Params = { params: Promise<{ slug: string }> }
 
@@ -32,7 +32,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!voiture) return { title: 'Voiture introuvable' }
   const image = urlPhoto(premierePhoto(voiture.photos), 'grande')
   return {
-    title: `Location ${voiture.titre}`,
+    // L'onglet et les résultats de recherche disent ce qu'on peut faire de la
+    // voiture : « Location » sur une voiture à vendre tromperait le visiteur.
+    title: `${estAVendre(voiture) ? 'Achat' : 'Location'} ${voiture.titre}`,
     description: descriptionVoiture(voiture),
     openGraph: image ? { images: [image] } : undefined,
   }
@@ -44,10 +46,12 @@ export default async function PageVoiture({ params }: Params) {
   if (!voiture) notFound()
 
   const titre = voiture.titre || voiture.modele
-  const vuesOriginales = imagesTour(voiture.tour360)
-  // Tout ou rien : une série mi-détourée ferait clignoter le fond à la rotation.
-  const vuesDetourees = photosDetourees(vuesOriginales)
-  const vues = vuesDetourees ?? vuesOriginales
+  // Une photo ordinaire versée par erreur serait étirée sur la sphère : on ne
+  // montre la vue intérieure que si l'image a bien les proportions d'un 360°.
+  const panorama =
+    typeof voiture.vueInterieure === 'object' && estUnPanorama(voiture.vueInterieure)
+      ? urlPanorama(voiture.vueInterieure)
+      : null
   const categorie = nomCategorie(voiture.categorie)
   const aVendre = estAVendre(voiture)
   const prix = prixPrincipal(voiture)
@@ -65,13 +69,13 @@ export default async function PageVoiture({ params }: Params) {
             url: photoDetouree(photo.url) ?? photo.url,
             miniature: photoDetouree(photo.miniature) ?? photo.miniature,
           }))} titre={titre} />
-          {vues.length > 0 && (
-            <section aria-labelledby="titre-tour">
-              <h2 id="titre-tour" className="text-sm">
-                Tour à 360°
+          {panorama && (
+            <section aria-labelledby="titre-interieur">
+              <h2 id="titre-interieur" className="text-sm">
+                Vue intérieure
               </h2>
               <div className="mt-3">
-                <Tour360 images={vues} titre={titre} detourees={vuesDetourees !== null} />
+                <VueInterieure panorama={panorama} titre={titre} />
               </div>
             </section>
           )}

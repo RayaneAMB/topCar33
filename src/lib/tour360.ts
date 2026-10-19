@@ -1,4 +1,10 @@
-import type { Voiture } from '@/payload-types'
+import type { Media } from '@/payload-types'
+
+/**
+ * Une série de vues prises en tournant autour d'une voiture — celle du décor
+ * de fond, réglée dans Apparence.
+ */
+type SerieDeVues = (string | Media)[] | null | undefined
 
 /**
  * En dessous de ce nombre de vues, la rotation saute d'un angle à l'autre :
@@ -7,11 +13,11 @@ import type { Voiture } from '@/payload-types'
 export const MINIMUM_IMAGES = 8
 
 /**
- * Les vues du tour, en version allégée, dans l'ordre où elles ont été versées.
+ * Les vues de la série, en version allégée, dans l'ordre où elles ont été versées.
  * Tout ou rien : une seule image manquante trouerait la rotation.
  */
-export function imagesTour(tour: Voiture['tour360'] | null | undefined): string[] {
-  const vues = tour ?? []
+export function imagesTour(serie: SerieDeVues): string[] {
+  const vues = serie ?? []
   if (vues.length < MINIMUM_IMAGES) return []
 
   const urls: string[] = []
@@ -23,28 +29,6 @@ export function imagesTour(tour: Voiture['tour360'] | null | undefined): string[
   }
 
   return urls
-}
-
-/**
- * La vue à afficher après un glissement horizontal.
- * `pas` est la distance, en pixels, qui fait passer à la vue suivante :
- * en dessous, rien ne bouge, sinon la voiture tremblerait au moindre frémissement.
- */
-export function vueSuivante({
-  depart,
-  deplacement,
-  pas,
-  total,
-}: {
-  depart: number
-  deplacement: number
-  pas: number
-  total: number
-}): number {
-  if (total <= 0) return 0
-  // Vers la gauche, la voiture tourne dans le sens des prises de vue.
-  const franchis = Math.trunc(deplacement / pas)
-  return (((depart + franchis) % total) + total) % total
 }
 
 /**

@@ -1,6 +1,7 @@
 import type { CollectionConfig, PayloadRequest } from 'payload'
 
 import { connecte, tousLesVisiteurs } from '../access'
+import { verifierPanorama } from '../lib/panorama'
 import { slugify, slugUnique } from '../lib/slug'
 import { BOITES, CARBURANTS, OFFRES } from '../lib/voitureOptions'
 import { limiterFiltres } from './filtres'
@@ -140,15 +141,27 @@ export const Voitures: CollectionConfig = {
         admin: { description: 'La première photo est la photo principale.' },
       },
       {
-        name: 'tour360',
-        label: 'Tour à 360°',
+        name: 'vueInterieure',
+        label: 'Vue intérieure à 360°',
         type: 'upload',
         relationTo: 'media',
-        hasMany: true,
-        maxRows: 48,
+        // Refus explicite d'une photo aux mauvaises proportions : le site
+        // l'ignorerait de toute façon, autant le dire tout de suite.
+        validate: async (valeur: unknown, { req }: { req: PayloadRequest }) => {
+          if (!valeur) return true
+          const id = typeof valeur === 'object' ? (valeur as { id?: string }).id : valeur
+          if (typeof id !== 'string') return true
+          try {
+            const media = await req.payload.findByID({ collection: 'media', id, depth: 0, req })
+            return verifierPanorama(media)
+          } catch {
+            // Photo introuvable : Payload signale déjà la relation cassée.
+            return true
+          }
+        },
         admin: {
           description:
-            'Facultatif. Photographiez la voiture en tournant autour, du même endroit et à la même hauteur : 24 à 36 photos, dans l’ordre. Le visiteur pourra la faire tourner au doigt. En dessous de 8 photos, le tour ne s’affiche pas.',
+            'Facultatif. Une seule photo panoramique de l’habitacle, prise avec une caméra 360 (Insta360, Ricoh Theta…) posée entre les sièges avant. Format attendu : deux fois plus large que haute (ex. 6000 × 3000). Le visiteur pourra regarder tout autour de lui.',
         },
       },
       { name: 'description', label: 'Description', type: 'richText' },

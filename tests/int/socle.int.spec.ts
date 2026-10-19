@@ -45,7 +45,7 @@ describe('Décor animé', () => {
     payload = await initPayload()
   })
 
-  it('les vues versées dans Apparence alimentent le décor, hors du catalogue', async () => {
+  it('les vues versées dans Apparence alimentent le décor', async () => {
     await viderCollections(payload, ['media'])
     const vues = []
     for (let index = 0; index < MINIMUM_IMAGES; index += 1) {
@@ -56,13 +56,6 @@ describe('Décor animé', () => {
     const apparence = await lireApparence(payload)
 
     expect(imagesTour(apparence.decor360)).toHaveLength(MINIMUM_IMAGES)
-
-    // Le décor vit dans un réglage : aucune voiture du catalogue ne le porte.
-    const porteuses = await payload.count({
-      collection: 'voitures',
-      where: { tour360: { in: vues.map((vue) => vue.id) } },
-    })
-    expect(porteuses.totalDocs).toBe(0)
   })
 
   it('une série trop courte ne donne aucun décor', async () => {

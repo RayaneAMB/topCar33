@@ -162,9 +162,9 @@ export interface Voiture {
    */
   photos: (string | Media)[];
   /**
-   * Facultatif. Photographiez la voiture en tournant autour, du même endroit et à la même hauteur : 24 à 36 photos, dans l’ordre. Le visiteur pourra la faire tourner au doigt. En dessous de 8 photos, le tour ne s’affiche pas.
+   * Facultatif. Une seule photo panoramique de l’habitacle, prise avec une caméra 360 (Insta360, Ricoh Theta…) posée entre les sièges avant. Format attendu : deux fois plus large que haute (ex. 6000 × 3000). Le visiteur pourra regarder tout autour de lui.
    */
-  tour360?: (string | Media)[] | null;
+  vueInterieure?: (string | null) | Media;
   description?: {
     root: {
       type: string;
@@ -288,6 +288,14 @@ export interface Media {
       filename?: string | null;
     };
     tour?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    panorama?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -467,7 +475,7 @@ export interface VoituresSelect<T extends boolean = true> {
   nomComplet?: T;
   categorie?: T;
   photos?: T;
-  tour360?: T;
+  vueInterieure?: T;
   description?: T;
   caracteristiques?:
     | T
@@ -571,6 +579,16 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
         tour?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        panorama?:
           | T
           | {
               url?: T;
