@@ -25,6 +25,9 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     user: Users.slug,
+    // Le format par défaut est anglais — « octobre 19 2026, 11:01 AM ».
+    // Ici : « 19 oct. 2026, 11:01 », dans l'ordre et à l'heure d'ici.
+    dateFormat: 'd MMM yyyy, HH:mm',
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -46,6 +49,40 @@ export default buildConfig({
   i18n: {
     fallbackLanguage: 'fr',
     supportedLanguages: { fr },
+    // La traduction française livrée avec Payload ne sait pas le genre des
+    // objets : elle écrit « Créer un(e) nouveau ou nouvelle », « Aucun(e) ».
+    // On reformule sans genre plutôt qu'avec des parenthèses — c'est ce que
+    // l'agence lit chaque jour.
+    translations: {
+      fr: {
+        general: {
+          createNew: 'Ajouter',
+          createNewLabel: 'Ajouter : {{label}}',
+          creatingNewLabel: 'Ajout : {{label}}',
+          created: 'Création',
+          createdAt: 'Date de création',
+          deletedSuccessfully: 'Suppression effectuée.',
+          descending: 'Décroissant',
+          none: 'Aucun',
+          noResults: 'Aucun résultat : il n’y a encore rien ici, ou rien ne correspond aux filtres choisis.',
+          successfullyCreated: '{{label}} : ajout enregistré.',
+          successfullyDuplicated: '{{label}} : copie créée.',
+          titleDeleted: '{{label}} « {{title}} » : suppression effectuée.',
+        },
+        fields: {
+          addNew: 'Ajouter',
+          addNewLabel: 'Ajouter : {{label}}',
+          chooseFromExisting: 'Choisir dans la médiathèque',
+          chooseLabel: 'Choisir : {{label}}',
+          selectExistingLabel: 'Sélectionner : {{label}}',
+          uploadNewLabel: 'Envoyer un fichier : {{label}}',
+        },
+        version: {
+          noRowsFound: 'Aucun résultat',
+          restoredSuccessfully: 'Restauration effectuée.',
+        },
+      },
+    },
   },
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

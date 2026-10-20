@@ -65,28 +65,6 @@ export function resumeCarte(voiture: Pick<Voiture, 'offre' | 'caracteristiques' 
   return morceaux.join(' · ')
 }
 
-/** Année et kilométrage d'une voiture à vendre, quand ils sont renseignés. */
-export function lignesVente(vente: Voiture['vente']): LigneTarif[] {
-  const lignes: LigneTarif[] = []
-  if (vente?.annee != null) lignes.push({ libelle: 'Année', valeur: String(vente.annee) })
-  if (vente?.kilometrage != null) {
-    lignes.push({ libelle: 'Kilométrage', valeur: formaterKilometrage(vente.kilometrage) })
-  }
-  return lignes
-}
-
-/** Lignes du tableau des tarifs de location : seulement les tarifs renseignés. */
-export function lignesTarifs(tarifs: Voiture['tarifs']): LigneTarif[] {
-  if (tarifs?.prixJour == null) return []
-
-  const lignes: LigneTarif[] = [{ libelle: 'Jour', valeur: formaterPrix(tarifs.prixJour) }]
-  if (tarifs.prixWeekend != null) lignes.push({ libelle: 'Week-end', valeur: formaterPrix(tarifs.prixWeekend) })
-  if (tarifs.prixSemaine != null) lignes.push({ libelle: 'Semaine', valeur: formaterPrix(tarifs.prixSemaine) })
-  if (tarifs.caution != null) lignes.push({ libelle: 'Caution', valeur: formaterPrix(tarifs.caution) })
-  if (tarifs.kmInclus) lignes.push({ libelle: 'Kilométrage inclus', valeur: tarifs.kmInclus })
-  return lignes
-}
-
 /** URL d'une taille d'image, ou de l'original si la taille n'a pas été générée. */
 export function urlPhoto(photo: string | Media | null | undefined, taille: TaillePhoto): string | null {
   if (!photo || typeof photo === 'string') return null

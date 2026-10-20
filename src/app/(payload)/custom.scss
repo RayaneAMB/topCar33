@@ -73,15 +73,25 @@
   }
 }
 
-/* Bouton « Créer » en tête de liste */
-.btn.btn--style-pill {
-  background: rgb(1 150 174 / 12%);
-  color: var(--tc-petrole);
+/* Bouton « Ajouter » en tête de liste : l'action principale de la page, donc
+   pleine, avec un « + » pour la reconnaître sans lire. */
+.btn.btn--style-pill.list-create-new-doc__create-new-button {
+  background: var(--tc-petrole);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgb(1 150 174 / 30%);
+  color: #fff;
+  font-weight: 600;
+  padding-inline: 0.875rem;
+
+  .btn__label::before {
+    content: '+ ';
+    font-weight: 700;
+  }
 
   &:hover,
   &:focus-visible {
-    background: var(--tc-petrole);
-    color: #fff;
+    background: var(--tc-cyan);
+    color: var(--tc-anthracite);
   }
 }
 
@@ -109,25 +119,50 @@ a:not(.btn):not(.nav__link) {
   text-transform: uppercase;
 }
 
+/* Onglets du menu : des pastilles arrondies, sans soulignement. Le survol reste
+   discret pour ne jamais ressembler à la page courante. */
 .nav__link {
-  border-left: 2px solid transparent;
+  border-radius: 8px;
   color: #d5d9da;
+  margin-block: 1px;
+  margin-inline: -0.625rem;
+  padding: 0.45rem 0.625rem;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 
   &:hover,
   &:focus-visible {
-    background-color: rgb(0 194 212 / 12%);
-    border-left-color: var(--tc-cyan);
+    background-color: rgb(255 255 255 / 6%);
     color: #fff;
+    text-decoration: none;
   }
 
+  .nav__link-label {
+    text-decoration: none;
+  }
 }
 
 /* Page courante : Payload la rend en <div> (pas de lien vers soi-même). */
 div.nav__link {
   background-color: rgb(0 194 212 / 16%);
-  border-left-color: var(--tc-cyan);
+  box-shadow: inset 3px 0 0 var(--tc-cyan);
   color: var(--tc-cyan);
   font-weight: 600;
+}
+
+/* Sur une fiche, le lien de la collection reste allumé (Payload ajoute
+   `--active`), un ton en dessous de la page exacte. */
+a.nav__link.active,
+a.nav__link--active {
+  background-color: rgb(0 194 212 / 10%);
+  color: var(--tc-cyan);
+}
+
+/* Payload ajoute sa propre barre d'indicateur : la nôtre la remplace. */
+.nav__link-indicator {
+  display: none;
 }
 
 .nav__log-out,
@@ -140,14 +175,131 @@ div.nav__link {
   border-bottom: 2px solid var(--tc-petrole);
 }
 
-/* Tableaux : en-tête teinté et survol de ligne, pour suivre les lignes du regard. */
-.table thead th {
-  background-color: rgb(1 150 174 / 8%);
-  color: var(--tc-anthracite);
+/* ----------------------------------------------------------------------------
+   Tableaux — une carte blanche aux lignes fines, plutôt que les bandes grises
+   alternées de Payload. En-tête discret en petites capitales, survol teinté
+   pour suivre la ligne du regard, titre en gras sans soulignement.
+   ---------------------------------------------------------------------------- */
+.table {
+  background: var(--theme-elevation-0);
+  border: 1px solid var(--theme-elevation-100);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 5%);
+
+  table {
+    border-collapse: collapse;
+  }
+
+  thead th {
+    background-color: var(--theme-elevation-50);
+    border-bottom: 1px solid var(--theme-elevation-100);
+    color: var(--theme-elevation-500);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding-block: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 0.12s ease;
+
+    /* On remplace les bandes alternées par des séparateurs fins. */
+    &:nth-child(odd) {
+      background: transparent;
+    }
+
+    & + tr td {
+      border-top: 1px solid var(--theme-elevation-100);
+    }
+
+    &:hover {
+      background-color: rgb(1 150 174 / 6%);
+    }
+  }
+
+  td {
+    padding-block: 0.7rem;
+    vertical-align: middle;
+  }
+
+  /* Le titre : le lien vers la fiche. */
+  td a:not(.btn) {
+    color: var(--theme-elevation-900);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--tc-petrole);
+    }
+  }
 }
 
-.table tbody tr:hover {
-  background-color: rgb(0 194 212 / 7%);
+/* ---- Barre de recherche et boutons « Colonnes » / « Filtres » ---- */
+.search-bar {
+  --search-bg: var(--theme-elevation-0);
+
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 12px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--tc-petrole);
+    box-shadow: 0 0 0 3px rgb(1 150 174 / 15%);
+  }
+
+  .search-filter input:focus-visible {
+    outline: none;
+  }
+}
+
+.list-controls__toggle-columns,
+.list-controls__toggle-where,
+.list-controls__toggle-sort,
+.list-controls__toggle-group-by {
+  &.pill {
+    background: var(--theme-elevation-0);
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: 8px;
+    color: var(--theme-elevation-800);
+    font-weight: 600;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover,
+    &:focus-visible,
+    &.pill--active,
+    &[aria-expanded='true'] {
+      border-color: var(--tc-petrole);
+      color: var(--tc-petrole);
+    }
+  }
+}
+
+/* Petit enfoncement au clic, comme les boutons du site. */
+.btn,
+.pill,
+a.tc-filtre-rapide {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .pill,
+  a.tc-filtre-rapide {
+    &:active {
+      transform: none;
+    }
+  }
 }
 
 /* Pastille de disponibilité dans la liste des voitures */
@@ -307,3 +459,61 @@ html[data-theme='dark'] {
     color: var(--tc-cyan);
   }
 }
+
+/* ----------------------------------------------------------------------------
+   Liste des voitures — raccourcis de filtre, vignette, prix.
+   ---------------------------------------------------------------------------- */
+.tc-filtres-rapides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+a.tc-filtre-rapide {
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 999px;
+  color: var(--theme-elevation-800);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.4rem 0.95rem;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--tc-petrole);
+    color: var(--tc-petrole);
+  }
+
+  &[aria-current='true'] {
+    background: var(--tc-petrole);
+    border-color: var(--tc-petrole);
+    color: #fff;
+  }
+}
+
+.tc-vignette {
+  aspect-ratio: 4 / 3;
+  background: var(--theme-elevation-100);
+  border-radius: 6px;
+  display: block;
+  object-fit: cover;
+  width: 72px;
+}
+
+.tc-prix {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tc-prix__suffixe,
+.tc-vide {
+  color: var(--theme-elevation-500);
+  font-weight: 400;
+}
+

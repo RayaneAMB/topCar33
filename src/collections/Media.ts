@@ -8,7 +8,24 @@ import { detourerFichier, fichiersAffiches, nomDetoure } from '../lib/images/det
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Média', plural: 'Médias' },
-  admin: { group: 'Catalogue' },
+  admin: {
+    group: 'Catalogue',
+    /**
+     * Les vues du décor de fond se règlent dans Réglages → Apparence : elles
+     * n'ont rien à faire dans la médiathèque du catalogue, où leurs 36 images
+     * noyaient les photos des voitures.
+     *
+     * Le tri se fait par usage, pas par nom de fichier : si le décor change
+     * de voiture demain, les nouvelles vues seront masquées de la même façon,
+     * et les anciennes, une fois retirées d'Apparence, réapparaîtront ici pour
+     * pouvoir être supprimées.
+     */
+    baseFilter: async ({ req }) => {
+      const apparence = await req.payload.findGlobal({ slug: 'apparence', depth: 0, req })
+      const decor = (apparence.decor360 ?? []).map((vue) => (typeof vue === 'object' ? vue.id : vue))
+      return decor.length ? { id: { not_in: decor } } : null
+    },
+  },
   access: {
     read: tousLesVisiteurs,
     create: connecte,

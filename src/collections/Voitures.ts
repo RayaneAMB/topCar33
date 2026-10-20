@@ -30,9 +30,13 @@ export const Voitures: CollectionConfig = {
   labels: { singular: 'Voiture', plural: 'Voitures' },
   admin: {
     useAsTitle: 'titre',
-    defaultColumns: ['titre', 'offre', 'categorie', 'disponible', 'updatedAt'],
+    // La photo d'abord : on reconnaît une voiture avant de lire son nom.
+    defaultColumns: ['photos', 'titre', 'offre', 'prixListe', 'disponible', 'updatedAt'],
     listSearchableFields: ['titre', 'modele'],
     group: 'Catalogue',
+    components: {
+      beforeListTable: ['/components/admin/FiltresRapides#FiltresRapides'],
+    },
   },
   access: {
     read: tousLesVisiteurs,
@@ -138,7 +142,10 @@ export const Voitures: CollectionConfig = {
         required: true,
         minRows: 1,
         maxRows: 10,
-        admin: { description: 'La première photo est la photo principale.' },
+        admin: {
+          description: 'La première photo est la photo principale.',
+          components: { Cell: '/components/admin/CellulePhoto#CellulePhoto' },
+        },
       },
       {
         name: 'vueInterieure',
@@ -281,6 +288,19 @@ export const Voitures: CollectionConfig = {
             ],
           },
         ],
+      },
+      {
+        // Colonne de la liste seulement : le prix qui compte selon l'offre
+        // (vente ou prix par jour). Rien n'est enregistré.
+        name: 'prixListe',
+        label: 'Prix',
+        type: 'ui',
+        admin: {
+          components: {
+            Field: false,
+            Cell: '/components/admin/CellulePrix#CellulePrix',
+          },
+        },
       },
       {
         name: 'disponible',

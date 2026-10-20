@@ -404,6 +404,40 @@
 }
 
 /* ----------------------------------------------------------------------------
+   Colonne d'informations de la fiche voiture.
+
+   Sur grand écran, elle reste en place pendant que l'on parcourt les photos et
+   la vue intérieure dans la colonne voisine : le prix et le bouton de contact
+   ne quittent jamais l'écran.
+
+   Seulement si l'écran est assez haut pour la montrer entière. Plus haute que
+   la fenêtre, une colonne collée cacherait son propre bas — c'est-à-dire,
+   justement, le bouton de contact.
+   ---------------------------------------------------------------------------- */
+@media (min-width: 1024px) and (min-height: 760px) {
+  .colonne-fiche {
+    position: sticky;
+    /* Sous l'en-tête, lui-même collé en haut de page. */
+    top: 6rem;
+    align-self: start;
+  }
+}
+
+/* La galerie de photos défile horizontalement (GaleriePhotos) : sa barre de
+   défilement n'apporte rien — le compteur et les vignettes disent où l'on est —
+   et elle rognerait le bas de chaque photo. */
+.galerie-piste {
+  scrollbar-width: none;
+}
+.galerie-piste::-webkit-scrollbar {
+  display: none;
+}
+.galerie-piste:focus-visible {
+  outline: 2px solid var(--color-primaire);
+  outline-offset: 3px;
+}
+
+/* ----------------------------------------------------------------------------
    Carte de voiture au survol.
 
    La carte ne bouge pas : c'est la voiture qui avance. Faire léviter la boîte

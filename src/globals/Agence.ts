@@ -57,12 +57,5 @@ export const Agence: GlobalConfig = {
         },
       ],
     },
-    {
-      name: 'logo',
-      label: 'Logo',
-      type: 'upload',
-      relationTo: 'media',
-      admin: { description: 'Facultatif : sans logo, le nom de l’agence s’affiche en texte.' },
-    },
   ],
 }

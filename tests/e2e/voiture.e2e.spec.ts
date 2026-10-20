@@ -17,7 +17,10 @@ test.describe('Fiche voiture', () => {
     await expect(page.getByRole('heading', { level: 1, name: `${E2E.marque} ${E2E.modele}` })).toBeVisible()
     await expect(page.getByText('Électrique')).toBeVisible()
     await expect(page.getByText('Automatique')).toBeVisible()
-    await expect(page.getByRole('row', { name: /Semaine/ })).toContainText('70')
+    // Les tarifs vivent dans le bandeau de chiffres, une liste de définitions.
+    const chiffre = (libelle: string) => page.locator('dl > div', { has: page.getByText(libelle, { exact: true }) })
+    await expect(chiffre('Par jour')).toContainText('12')
+    await expect(chiffre('La semaine')).toContainText('70')
     await page.getByRole('link', { name: 'Contacter pour ce véhicule' }).click()
     await expect(page).toHaveURL(/\/contact\?voiture=tesla-testmobile$/)
   })

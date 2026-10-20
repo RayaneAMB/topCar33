@@ -5,20 +5,19 @@ import { notFound } from 'next/navigation'
 import { ApparitionAuDefilement } from '@/components/site/ApparitionAuDefilement'
 import { RichTexte } from '@/components/RichTexte'
 import { BadgeDispo } from '@/components/voitures/BadgeDispo'
+import { BandeauChiffres } from '@/components/voitures/BandeauChiffres'
 import { Caracteristiques } from '@/components/voitures/Caracteristiques'
 import { GaleriePhotos } from '@/components/voitures/GaleriePhotos'
-import { TableauInfos } from '@/components/voitures/TableauInfos'
+import { ListeFiche } from '@/components/voitures/ListeFiche'
 import { VueInterieure } from '@/components/voitures/VueInterieure'
+import { chiffresCles } from '@/lib/chiffresCles'
 import { getVoiture } from '@/lib/donnees'
 import {
   descriptionVoiture,
   estAVendre,
-  lignesTarifs,
-  lignesVente,
   nomCategorie,
   photosGalerie,
   premierePhoto,
-  prixPrincipal,
   urlPhoto,
 } from '@/lib/format'
 import { photoDetouree } from '@/lib/images/detouree'
@@ -54,7 +53,7 @@ export default async function PageVoiture({ params }: Params) {
       : null
   const categorie = nomCategorie(voiture.categorie)
   const aVendre = estAVendre(voiture)
-  const prix = prixPrincipal(voiture)
+  const { chiffres, conditions } = chiffresCles(voiture)
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -81,7 +80,10 @@ export default async function PageVoiture({ params }: Params) {
           )}
         </div>
 
-        <ApparitionAuDefilement>
+        {/* Collée au défilement sur grand écran (voir .colonne-fiche) : prix et
+            bouton restent sous la main pendant qu'on parcourt photos et vue
+            intérieure, dans la colonne voisine. */}
+        <ApparitionAuDefilement className="colonne-fiche">
           <div className="flex flex-wrap items-center gap-3">
             <BadgeDispo offre={voiture.offre} disponible={voiture.disponible !== false} />
             {categorie && (
@@ -91,26 +93,38 @@ export default async function PageVoiture({ params }: Params) {
             )}
           </div>
           <h1 className="mt-4 text-3xl sm:text-4xl">{titre}</h1>
-          <p className="mt-6 font-titre text-3xl font-bold tracking-wide text-primaire">
-            {prix.valeur}
-            {prix.suffixe && <span className="font-texte text-base font-medium text-texte-doux"> {prix.suffixe}</span>}
-          </p>
 
-          <div className="mt-8">
-            <Caracteristiques caracteristiques={voiture.caracteristiques} />
-          </div>
-
-          <div className="mt-8">
-            {aVendre ? (
-              <TableauInfos titre="Le véhicule" lignes={lignesVente(voiture.vente)} />
+          <div className="mt-6">
+            {chiffres.length > 0 ? (
+              <BandeauChiffres chiffres={chiffres} />
             ) : (
-              <TableauInfos titre="Tarifs" lignes={lignesTarifs(voiture.tarifs)} />
+              <p className="border-y border-bordure py-4 font-titre text-2xl font-bold text-primaire">Prix sur demande</p>
             )}
           </div>
 
+          <section aria-labelledby="titre-fiche" className="mt-8">
+            <h2 id="titre-fiche" className="text-sm">
+              Fiche technique
+            </h2>
+            <div className="mt-1">
+              <Caracteristiques caracteristiques={voiture.caracteristiques} />
+            </div>
+          </section>
+
+          {conditions.length > 0 && (
+            <section aria-labelledby="titre-conditions" className="mt-8">
+              <h2 id="titre-conditions" className="text-sm">
+                Conditions de location
+              </h2>
+              <div className="mt-1">
+                <ListeFiche lignes={conditions} uneColonne />
+              </div>
+            </section>
+          )}
+
           <Link
             href={`/contact?voiture=${voiture.slug}`}
-            className="bouton-action mt-8 inline-block rounded-carte bg-primaire px-6 py-3 font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
+            className="bouton-action mt-8 block w-full rounded-carte bg-primaire px-6 py-3.5 text-center font-semibold text-primaire-contraste transition hover:bg-petrole hover:text-texte"
           >
             Contacter pour ce véhicule
           </Link>

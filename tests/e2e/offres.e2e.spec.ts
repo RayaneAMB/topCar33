@@ -54,8 +54,11 @@ test.describe('Location et vente', () => {
   test('la fiche d’une voiture à vendre montre le prix de vente et pas de tarif journalier', async ({ page }) => {
     await page.goto('/voitures/tesla-vendmobile')
     await expect(page.getByRole('heading', { level: 1, name: `${E2E.marque} ${E2E.modeleVente}` })).toBeVisible()
-    await expect(page.getByRole('row', { name: /Année/ })).toContainText('2020')
-    await expect(page.getByRole('row', { name: /Kilométrage/ })).toContainText('45')
+    // Le bandeau de chiffres est une liste de définitions : chaque libellé et
+    // sa valeur partagent un même groupe.
+    const chiffre = (libelle: string) => page.locator('dl > div', { has: page.getByText(libelle, { exact: true }) })
+    await expect(chiffre('Année')).toContainText('2020')
+    await expect(chiffre('Kilométrage')).toContainText('45')
     await expect(page.getByText('/ jour')).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Contacter pour ce véhicule' })).toBeVisible()
   })

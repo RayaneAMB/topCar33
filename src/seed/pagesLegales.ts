@@ -14,7 +14,7 @@
  * du code de la consommation). Ce texte est une base solide, pas un avis
  * juridique : une relecture par un professionnel reste préférable.
  */
-import { contenuRiche, liste, paragraphe, titre2 } from './lexical'
+import { contenuRiche, liste, paragraphe, paragrapheAvecLiens, titre2 } from './lexical'
 
 /** Coordonnées de l'entreprise, telles qu'inscrites au RNE. */
 export const IDENTITE = {
@@ -69,8 +69,15 @@ export const mentionsLegales = contenuRiche(
 
   titre2('Conception du site'),
   paragraphe(
-    'Le site a été conçu et réalisé par Honestinn. [À COMPLÉTER — facultatif] Adresse du site ' +
-      'de l’agence, si vous souhaitez y renvoyer.',
+    'Le site a été conçu et réalisé par HONEST-INN CONNECT, société par actions simplifiée ' +
+      'immatriculée sous le numéro SIREN 994 428 787, dont le siège social est situé au ' +
+      '104 rue Gabriel Péri, 94250 Gentilly. Numéro de TVA intracommunautaire : FR60 994 428 787.',
+  ),
+  paragrapheAvecLiens(
+    'Site : ',
+    { texte: 'connect.honest-inn.com', url: 'https://connect.honest-inn.com/fr/' },
+    ' — Contact : ',
+    { texte: 'support@honest-inn.com', url: 'mailto:support@honest-inn.com' },
   ),
 
   titre2('Propriété intellectuelle'),

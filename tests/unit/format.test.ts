@@ -9,8 +9,6 @@ import {
   libelleDisponibilite,
   lienItineraire,
   lienTelephone,
-  lignesTarifs,
-  lignesVente,
   photosGalerie,
   premierePhoto,
   prixPrincipal,
@@ -49,17 +47,6 @@ describe('resumeCaracteristiques', () => {
     expect(resumeCaracteristiques({ boite: 'automatique', carburant: 'electrique', places: 4 })).toBe(
       'Automatique · Électrique · 4 places',
     )
-  })
-})
-
-describe('lignesTarifs', () => {
-  it('ne garde que les tarifs renseignés', () => {
-    const lignes = lignesTarifs({ prixJour: 49, prixWeekend: null, prixSemaine: 300, caution: null, kmInclus: 'Illimité' })
-    expect(lignes.map(({ libelle, valeur }) => [libelle, espaces(valeur)])).toEqual([
-      ['Jour', '49 €'],
-      ['Semaine', '300 €'],
-      ['Kilométrage inclus', 'Illimité'],
-    ])
   })
 })
 
@@ -131,18 +118,6 @@ describe('offre location / vente', () => {
   it('resumeCarte montre la boîte en location, l’année et les km en vente', () => {
     expect(resumeCarte(aLouer)).toBe('Manuelle · Diesel · 5 places')
     expect(espaces(resumeCarte(aVendre))).toBe('2019 · 68 000 km · Diesel')
-  })
-
-  it('lignesVente ne garde que les informations renseignées', () => {
-    expect(lignesVente(aVendre.vente).map(({ libelle, valeur }) => [libelle, espaces(valeur)])).toEqual([
-      ['Année', '2019'],
-      ['Kilométrage', '68 000 km'],
-    ])
-    expect(lignesVente({ prix: 9000 })).toEqual([])
-  })
-
-  it('lignesTarifs renvoie une liste vide sans tarif de location', () => {
-    expect(lignesTarifs(aVendre.tarifs)).toEqual([])
   })
 
   it('descriptionVoiture s’adapte à l’offre', () => {

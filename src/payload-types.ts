@@ -718,10 +718,6 @@ export interface Agence {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Facultatif : sans logo, le nom de l’agence s’affiche en texte.
-   */
-  logo?: (string | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -846,7 +842,6 @@ export interface AgenceSelect<T extends boolean = true> {
         heures?: T;
         id?: T;
       };
-  logo?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -22,6 +22,30 @@ export function paragraphe(texte: string): Noeud {
   return { type: 'paragraph', ...SOCLE, textFormat: 0, textStyle: '', children: [morceauTexte(texte)] }
 }
 
+/** Un lien cliquable dans un paragraphe : adresse web ou `mailto:`. */
+export type Lien = { texte: string; url: string }
+
+function morceauLien({ texte, url }: Lien) {
+  return {
+    type: 'link',
+    ...SOCLE,
+    version: 3,
+    fields: { linkType: 'custom', url, newTab: url.startsWith('http') },
+    children: [morceauTexte(texte)],
+  }
+}
+
+/** Un paragraphe mêlant texte et liens, dans l'ordre donné. */
+export function paragrapheAvecLiens(...morceaux: (string | Lien)[]): Noeud {
+  return {
+    type: 'paragraph',
+    ...SOCLE,
+    textFormat: 0,
+    textStyle: '',
+    children: morceaux.map((m) => (typeof m === 'string' ? morceauTexte(m) : morceauLien(m))),
+  }
+}
+
 /** Un sous-titre de section. `.contenu-riche h2` lui donne sa taille. */
 export function titre2(texte: string): Noeud {
   return { type: 'heading', tag: 'h2', ...SOCLE, children: [morceauTexte(texte)] }
