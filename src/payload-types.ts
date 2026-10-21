@@ -338,7 +338,6 @@ export interface Demande {
   nature?: ('location' | 'vente' | 'generale') | null;
   statut: 'nouvelle' | 'traitee';
   mailAgenceEnvoye?: boolean | null;
-  mailClientEnvoye?: boolean | null;
   /**
    * Rempli automatiquement.
    */
@@ -629,7 +628,6 @@ export interface DemandesSelect<T extends boolean = true> {
   nature?: T;
   statut?: T;
   mailAgenceEnvoye?: T;
-  mailClientEnvoye?: T;
   titre?: T;
   empreinteIp?: T;
   updatedAt?: T;
@@ -766,10 +764,6 @@ export interface ReglagesMails {
    */
   copieCachee?: string | null;
   /**
-   * Allumé : le visiteur reçoit un mail « Votre demande a bien été reçue ». Éteint : rien ne lui est envoyé, l’agence reçoit toujours la demande.
-   */
-  accuseReception?: boolean | null;
-  /**
    * Au-delà, la demande est refusée avec un message. Vide = 10.
    */
   limiteParHeure?: number | null;
@@ -880,7 +874,6 @@ export interface MailsSelect<T extends boolean = true> {
         id?: T;
       };
   copieCachee?: T;
-  accuseReception?: T;
   limiteParHeure?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -46,29 +46,15 @@ describe('traiterDemande', () => {
         destinataires: [{ email: 'demandes@topcar33.example' }],
         copieCachee: null,
         limiteParHeure: null,
-        accuseReception: true,
       },
     })
-  })
-
-  it('accusé de réception éteint : seule l’agence reçoit un mail', async () => {
-    await payload.updateGlobal({ slug: 'mails', data: { accuseReception: false } })
-    const envoi = vi.spyOn(payload, 'sendEmail').mockResolvedValue(undefined)
-
-    const resultat = await traiterDemande(payload, brutValide(), { urlSite: URL_SITE })
-
-    expect(resultat.statut).toBe('succes')
-    expect(envoi).toHaveBeenCalledTimes(1)
-    expect(envoi.mock.calls[0][0]).toMatchObject({ to: ['demandes@topcar33.example'] })
-    const { docs } = await payload.find({ collection: 'demandes', depth: 0 })
-    expect(docs[0]).toMatchObject({ mailAgenceEnvoye: true, mailClientEnvoye: false })
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('enregistre la demande, envoie les 2 mails et note les envois', async () => {
+  it('enregistre la demande et n’envoie qu’un mail, à l’agence', async () => {
     const voiture = await creerVoiture(payload)
     const envoi = vi.spyOn(payload, 'sendEmail').mockResolvedValue(undefined)
 
@@ -82,21 +68,17 @@ describe('traiterDemande', () => {
       voiture: voiture.id,
       statut: 'nouvelle',
       mailAgenceEnvoye: true,
-      mailClientEnvoye: true,
     })
 
-    expect(envoi).toHaveBeenCalledTimes(2)
-    const [versAgence, versClient] = envoi.mock.calls.map(([options]) => options)
+    // Aucun accusé de réception : le visiteur ne reçoit rien.
+    expect(envoi).toHaveBeenCalledTimes(1)
+    const versAgence = envoi.mock.calls[0][0]
     expect(versAgence).toMatchObject({
       to: ['demandes@topcar33.example'],
       replyTo: 'jean@exemple.fr',
       subject: 'Nouvelle demande de location — Jean Dupont (Peugeot 208)',
     })
     expect(String(versAgence.html)).toContain(`${URL_SITE}/admin/collections/demandes/${docs[0].id}`)
-    expect(versClient).toMatchObject({
-      to: 'jean@exemple.fr',
-      subject: 'Votre demande a bien été reçue — TopCar33',
-    })
   })
 
   it('enregistre la nature de la demande selon l’offre de la voiture', async () => {
@@ -122,15 +104,13 @@ describe('traiterDemande', () => {
   })
 
   it('garde la demande si le mail à l’agence échoue', async () => {
-    vi.spyOn(payload, 'sendEmail')
-      .mockRejectedValueOnce(new Error('SMTP en panne'))
-      .mockResolvedValueOnce(undefined)
+    vi.spyOn(payload, 'sendEmail').mockRejectedValueOnce(new Error('SMTP en panne'))
 
     const resultat = await traiterDemande(payload, brutValide(), { urlSite: URL_SITE })
 
     expect(resultat.statut).toBe('succes')
     const { docs } = await payload.find({ collection: 'demandes', depth: 0 })
-    expect(docs[0]).toMatchObject({ mailAgenceEnvoye: false, mailClientEnvoye: true })
+    expect(docs[0]).toMatchObject({ mailAgenceEnvoye: false })
   })
 
   it('envoie à tous les destinataires réglés, avec la copie cachée', async () => {
@@ -153,16 +133,16 @@ describe('traiterDemande', () => {
     expect(docs[0]).toMatchObject({ mailAgenceEnvoye: true })
   })
 
-  it('sans destinataire réglé, seul le client reçoit un mail', async () => {
+  it('sans destinataire réglé, aucun mail ne part mais la demande est gardée', async () => {
     await payload.updateGlobal({ slug: 'mails', data: { destinataires: [] } })
     const envoi = vi.spyOn(payload, 'sendEmail').mockResolvedValue(undefined)
 
-    await traiterDemande(payload, brutValide(), { urlSite: URL_SITE })
+    const resultat = await traiterDemande(payload, brutValide(), { urlSite: URL_SITE })
 
-    expect(envoi).toHaveBeenCalledTimes(1)
-    expect(envoi.mock.calls[0][0]).toMatchObject({ to: 'jean@exemple.fr' })
+    expect(resultat.statut).toBe('succes')
+    expect(envoi).not.toHaveBeenCalled()
     const { docs } = await payload.find({ collection: 'demandes', depth: 0 })
-    expect(docs[0]).toMatchObject({ mailAgenceEnvoye: false, mailClientEnvoye: true })
+    expect(docs[0]).toMatchObject({ mailAgenceEnvoye: false })
   })
 
   it('refuse la 11ᵉ demande de la même adresse dans l’heure', async () => {

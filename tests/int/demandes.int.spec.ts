@@ -37,7 +37,6 @@ describe('Collection demandes', () => {
   it('les indicateurs de mails sont à faux par défaut', async () => {
     const demande = await payload.create({ collection: 'demandes', data: donneesDemande() })
     expect(demande.mailAgenceEnvoye).toBe(false)
-    expect(demande.mailClientEnvoye).toBe(false)
   })
 
   it('refuse un message de plus de 2000 caractères', async () => {

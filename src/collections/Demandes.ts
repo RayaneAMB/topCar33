@@ -117,13 +117,6 @@ export const Demandes: CollectionConfig = {
         admin: { position: 'sidebar', readOnly: true },
       },
       {
-        name: 'mailClientEnvoye',
-        label: 'Accusé de réception envoyé au client',
-        type: 'checkbox',
-        defaultValue: false,
-        admin: { position: 'sidebar', readOnly: true },
-      },
-      {
         name: 'titre',
         label: 'Titre',
         type: 'text',

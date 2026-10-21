@@ -3,7 +3,7 @@ import type { Payload } from 'payload'
 import type { Agence, ReglagesMails, Voiture } from '@/payload-types'
 
 import { adresseEnLigne } from '../format'
-import { mailAgence, mailClient, type AgenceMail, type DemandeMail, type NatureDemande } from './emails'
+import { mailAgence, type AgenceMail, type DemandeMail, type NatureDemande } from './emails'
 import { CHAMP_PIEGE, type ErreursChamps } from './formulaire'
 import { empreinteIp } from './empreinte'
 import { FENETRE_MS, LIMITE_PAR_HEURE } from './limite'
@@ -161,19 +161,11 @@ export async function traiterDemande(
     )
   }
 
-  // L'accusé de réception ne part que si l'agence l'a allumé (Réglages → Mails).
-  let mailClientEnvoye = false
-  if (reglagesMails?.accuseReception) {
-    try {
-      await payload.sendEmail({ to: donnees.email, ...mailClient(pourMail, infosAgence) })
-      mailClientEnvoye = true
-    } catch (erreur) {
-      payload.logger.error({ err: erreur, msg: `Accusé de réception non envoyé (demande ${demandeId})` })
-    }
-  }
-
+  // Pas d'accusé de réception au visiteur, à la demande de l'agence : l'écran
+  // lui confirme déjà l'envoi. Le modèle (`mailClient`) reste prêt dans
+  // emails.ts si l'on veut le remettre.
   try {
-    await payload.update({ collection: 'demandes', id: demandeId, data: { mailAgenceEnvoye, mailClientEnvoye } })
+    await payload.update({ collection: 'demandes', id: demandeId, data: { mailAgenceEnvoye } })
   } catch (erreur) {
     payload.logger.error({ err: erreur, msg: `Suivi des mails non enregistré (demande ${demandeId})` })
   }
