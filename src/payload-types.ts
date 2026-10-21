@@ -250,7 +250,14 @@ export interface Categorie {
  */
 export interface Media {
   id: string;
-  alt: string;
+  /**
+   * Allumé : le fond blanc ou clair est retiré, la voiture s’affiche seule sur le site. Éteint : la photo s’affiche telle quelle (à choisir pour une photo prise dehors, un intérieur ou une voiture blanche).
+   */
+  retirerFond?: boolean | null;
+  /**
+   * Laissez vide : le nom du fichier sera repris automatiquement.
+   */
+  alt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -533,6 +540,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  retirerFond?: T;
   alt?: T;
   updatedAt?: T;
   createdAt?: T;

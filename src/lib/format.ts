@@ -81,7 +81,7 @@ export function photosGalerie(photos: Voiture['photos'] | null | undefined): Pho
     if (typeof photo !== 'object') return []
     const url = urlPhoto(photo, 'grande')
     if (!url) return []
-    return [{ url, miniature: urlPhoto(photo, 'miniature') ?? url, alt: photo.alt }]
+    return [{ url, miniature: urlPhoto(photo, 'miniature') ?? url, alt: photo.alt ?? '' }]
   })
 }
 

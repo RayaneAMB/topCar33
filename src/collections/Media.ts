@@ -4,6 +4,34 @@ import type { CollectionConfig } from 'payload'
 
 import { connecte, tousLesVisiteurs } from '../access'
 import { detourerFichier, fichiersAffiches, nomDetoure } from '../lib/images/detourerFichier'
+import { texteDepuisNomFichier } from '../lib/images/texteAlternatif'
+
+/** Le fichier d'origine et toutes ses vignettes. */
+function nomsDesFichiers(doc: { filename?: string | null; sizes?: object | null }): string[] {
+  return [
+    doc.filename,
+    ...Object.values(doc.sizes ?? {}).map((taille) => (taille as { filename?: string })?.filename),
+  ].filter((nom): nom is string => typeof nom === 'string')
+}
+
+/**
+ * Payload efface ses propres fichiers, pas les nôtres : sans ceci, une photo
+ * supprimée — ou dont on a éteint le détourage — laisserait ses fichiers
+ * détourés derrière elle, et le site continuerait de les afficher.
+ */
+async function effacerDetourages(
+  dossier: string,
+  noms: string[],
+  logger: { warn: (message: string) => void },
+) {
+  for (const nom of noms) {
+    try {
+      await rm(join(dossier, nomDetoure(nom)), { force: true })
+    } catch (erreur) {
+      logger.warn(`Détourage non supprimé pour ${nom} : ${(erreur as Error).message}`)
+    }
+  }
+}
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -33,9 +61,22 @@ export const Media: CollectionConfig = {
     delete: connecte,
   },
   hooks: {
+    /** Sans texte alternatif écrit, on reprend le nom du fichier. */
+    beforeChange: [
+      ({ data, req, originalDoc }) => {
+        if (!data.alt?.trim()) {
+          data.alt = texteDepuisNomFichier(data.filename ?? req.file?.name ?? originalDoc?.filename)
+        }
+        return data
+      },
+    ],
+
     /**
-     * Détoure la photo dès qu'elle est versée : l'agence n'a plus de commande à
-     * lancer, elle dépose la photo et le site l'affiche sans fond.
+     * Détoure la photo dès qu'elle est versée, si l'agence l'a demandé (case
+     * « Retirer le fond ») : le site l'affiche alors sans fond.
+     *
+     * Case décochée — à l'envoi ou plus tard — : les détourages existants sont
+     * effacés, et le site montre la photo telle qu'elle a été prise.
      *
      * Après coup, et non avant : les vignettes que l'on détoure sont produites
      * par Payload pendant l'enregistrement, elles n'existent pas plus tôt.
@@ -47,10 +88,13 @@ export const Media: CollectionConfig = {
     afterChange: [
       async ({ doc, req }) => {
         const dossier = process.env.MEDIA_DIR || 'media'
-        const noms: string[] = [
-          doc.filename,
-          ...Object.values(doc.sizes ?? {}).map((taille) => (taille as { filename?: string })?.filename),
-        ].filter((nom): nom is string => typeof nom === 'string')
+        const noms = nomsDesFichiers(doc)
+
+        // Les photos versées avant l'option n'ont pas la case : elles restent détourées.
+        if (doc.retirerFond === false) {
+          await effacerDetourages(dossier, noms, req.payload.logger)
+          return doc
+        }
 
         for (const nom of fichiersAffiches(noms)) {
           try {
@@ -72,30 +116,30 @@ export const Media: CollectionConfig = {
      */
     afterDelete: [
       async ({ doc, req }) => {
-        const dossier = process.env.MEDIA_DIR || 'media'
-        const noms: string[] = [
-          doc.filename,
-          ...Object.values(doc.sizes ?? {}).map((taille) => (taille as { filename?: string })?.filename),
-        ].filter((nom): nom is string => typeof nom === 'string')
-
-        for (const nom of noms) {
-          try {
-            await rm(join(dossier, nomDetoure(nom)), { force: true })
-          } catch (erreur) {
-            req.payload.logger.warn(`Détourage non supprimé pour ${nom} : ${(erreur as Error).message}`)
-          }
-        }
-
+        await effacerDetourages(process.env.MEDIA_DIR || 'media', nomsDesFichiers(doc), req.payload.logger)
         return doc
       },
     ],
   },
   fields: [
     {
+      name: 'retirerFond',
+      label: 'Retirer le fond de la photo',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
+        className: 'tc-interrupteur',
+        description:
+          'Allumé : le fond blanc ou clair est retiré, la voiture s’affiche seule sur le site. Éteint : la photo s’affiche telle quelle (à choisir pour une photo prise dehors, un intérieur ou une voiture blanche).',
+      },
+    },
+    {
       name: 'alt',
-      label: 'Texte alternatif (décrit la photo)',
+      label: 'Description de la photo (facultatif)',
       type: 'text',
-      required: true,
+      admin: {
+        description: 'Laissez vide : le nom du fichier sera repris automatiquement.',
+      },
     },
   ],
   upload: {
