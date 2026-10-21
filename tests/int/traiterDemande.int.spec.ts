@@ -42,8 +42,26 @@ describe('traiterDemande', () => {
     })
     await payload.updateGlobal({
       slug: 'mails',
-      data: { destinataires: [{ email: 'demandes@topcar33.example' }], copieCachee: null, limiteParHeure: null },
+      data: {
+        destinataires: [{ email: 'demandes@topcar33.example' }],
+        copieCachee: null,
+        limiteParHeure: null,
+        accuseReception: true,
+      },
     })
+  })
+
+  it('accusé de réception éteint : seule l’agence reçoit un mail', async () => {
+    await payload.updateGlobal({ slug: 'mails', data: { accuseReception: false } })
+    const envoi = vi.spyOn(payload, 'sendEmail').mockResolvedValue(undefined)
+
+    const resultat = await traiterDemande(payload, brutValide(), { urlSite: URL_SITE })
+
+    expect(resultat.statut).toBe('succes')
+    expect(envoi).toHaveBeenCalledTimes(1)
+    expect(envoi.mock.calls[0][0]).toMatchObject({ to: ['demandes@topcar33.example'] })
+    const { docs } = await payload.find({ collection: 'demandes', depth: 0 })
+    expect(docs[0]).toMatchObject({ mailAgenceEnvoye: true, mailClientEnvoye: false })
   })
 
   afterEach(() => {

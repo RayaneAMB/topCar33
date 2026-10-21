@@ -41,6 +41,19 @@ export const Mails: GlobalConfig = {
       },
     },
     {
+      name: 'accuseReception',
+      label: 'Envoyer un accusé de réception au visiteur',
+      type: 'checkbox',
+      // Éteint par défaut, à la demande de l'agence : le visiteur voit déjà
+      // « Votre demande a bien été envoyée » à l'écran.
+      defaultValue: false,
+      admin: {
+        className: 'tc-interrupteur',
+        description:
+          'Allumé : le visiteur reçoit un mail « Votre demande a bien été reçue ». Éteint : rien ne lui est envoyé, l’agence reçoit toujours la demande.',
+      },
+    },
+    {
       name: 'limiteParHeure',
       label: 'Demandes maximum par heure et par visiteur',
       type: 'number',

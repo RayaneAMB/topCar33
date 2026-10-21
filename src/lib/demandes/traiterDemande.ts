@@ -161,12 +161,15 @@ export async function traiterDemande(
     )
   }
 
+  // L'accusé de réception ne part que si l'agence l'a allumé (Réglages → Mails).
   let mailClientEnvoye = false
-  try {
-    await payload.sendEmail({ to: donnees.email, ...mailClient(pourMail, infosAgence) })
-    mailClientEnvoye = true
-  } catch (erreur) {
-    payload.logger.error({ err: erreur, msg: `Accusé de réception non envoyé (demande ${demandeId})` })
+  if (reglagesMails?.accuseReception) {
+    try {
+      await payload.sendEmail({ to: donnees.email, ...mailClient(pourMail, infosAgence) })
+      mailClientEnvoye = true
+    } catch (erreur) {
+      payload.logger.error({ err: erreur, msg: `Accusé de réception non envoyé (demande ${demandeId})` })
+    }
   }
 
   try {
