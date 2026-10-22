@@ -517,3 +517,85 @@ a.tc-filtre-rapide {
   font-weight: 400;
 }
 
+
+/* ----------------------------------------------------------------------------
+   Sélecteur de thème — Clair / Sombre / Auto, en bas du menu (anthracite dans
+   les deux thèmes, d'où des couleurs fixes).
+   ---------------------------------------------------------------------------- */
+.tc-theme {
+  background: rgb(255 255 255 / 6%);
+  border-radius: 10px;
+  display: grid;
+  gap: 2px;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 1.5rem;
+  padding: 3px;
+}
+
+.tc-theme__bouton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: #b6bcbd;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  gap: 0.2rem;
+  padding: 0.45rem 0.25rem;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+
+  svg {
+    height: 1rem;
+    width: 1rem;
+  }
+
+  &:hover {
+    color: #fff;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--tc-petrole);
+    color: #fff;
+  }
+}
+
+/* ---- Thème sombre : les teintes fixées plus haut pour le clair ---- */
+html[data-theme='dark'] {
+  .tc-etat--oui {
+    background-color: rgb(40 200 130 / 16%);
+    color: #5fd6a0;
+  }
+
+  .tc-etat--non {
+    background-color: rgb(240 90 80 / 16%);
+    color: #ff8a80;
+  }
+
+  a:not(.btn):not(.nav__link) {
+    color: var(--tc-cyan);
+  }
+
+  .table tbody tr:hover {
+    background-color: rgb(0 194 212 / 8%);
+  }
+
+  .table td a:not(.btn):hover {
+    color: var(--tc-cyan);
+  }
+
+  .tc-filtre-rapide:hover,
+  .tc-filtre-rapide:focus-visible {
+    color: var(--tc-cyan);
+  }
+}

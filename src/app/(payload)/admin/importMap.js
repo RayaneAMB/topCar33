@@ -27,6 +27,7 @@ import { CelluleDisponible as CelluleDisponible_e9fceb4005e439dc5dc20be4f323838f
 import { FiltresRapides as FiltresRapides_abfa6f8951bbf3259280d032ad212ec4 } from '../../../components/admin/FiltresRapides'
 import { IconeAdmin as IconeAdmin_e8df39c5be65543034d3b30f7e173e0a } from '../../../components/admin/IconeAdmin'
 import { LogoAdmin as LogoAdmin_5043711470204acca724df6e0d21876c } from '../../../components/admin/LogoAdmin'
+import { SelecteurThemeAdmin as SelecteurThemeAdmin_f52ce46db688b0d6158b6c2c890200d8 } from '../../../components/admin/SelecteurThemeAdmin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -60,5 +61,6 @@ export const importMap = {
   "/components/admin/FiltresRapides#FiltresRapides": FiltresRapides_abfa6f8951bbf3259280d032ad212ec4,
   "/components/admin/IconeAdmin#IconeAdmin": IconeAdmin_e8df39c5be65543034d3b30f7e173e0a,
   "/components/admin/LogoAdmin#LogoAdmin": LogoAdmin_5043711470204acca724df6e0d21876c,
+  "/components/admin/SelecteurThemeAdmin#SelecteurThemeAdmin": SelecteurThemeAdmin_f52ce46db688b0d6158b6c2c890200d8,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

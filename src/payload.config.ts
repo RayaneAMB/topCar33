@@ -40,6 +40,7 @@ export default buildConfig({
         Logo: '/components/admin/LogoAdmin#LogoAdmin',
         Icon: '/components/admin/IconeAdmin#IconeAdmin',
       },
+      afterNavLinks: ['/components/admin/SelecteurThemeAdmin#SelecteurThemeAdmin'],
     },
   },
   collections: [Voitures, Marques, Categories, Media, Demandes, Users],
