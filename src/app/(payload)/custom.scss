@@ -440,11 +440,28 @@ html[data-theme='dark'] {
    son nom : un bouton qu'on ne trouve pas est un bouton qui n'existe pas.
    ---------------------------------------------------------------------------- */
 .nav__controls .nav__log-out {
-  display: inline-flex;
   align-items: center;
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 10px;
+  box-sizing: border-box;
+  color: #d5d9da;
+  display: flex;
   gap: 0.5rem;
-  color: var(--theme-elevation-600);
-  transition: color 0.15s ease;
+  justify-content: center;
+  padding: 0.55rem 0.875rem;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+  width: 100%;
+
+  svg {
+    flex: none;
+    transition: transform 0.2s ease;
+  }
 
   &::after {
     content: 'Se déconnecter';
@@ -454,9 +471,21 @@ html[data-theme='dark'] {
     white-space: nowrap;
   }
 
+  /* Rouge doux au survol : on quitte, ce n'est pas une action anodine. */
   &:hover,
   &:focus-visible {
-    color: var(--tc-cyan);
+    background: rgb(240 90 80 / 14%);
+    border-color: rgb(240 90 80 / 45%);
+    color: #ff8a80;
+    text-decoration: none;
+
+    svg {
+      transform: translateX(2px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 }
 
@@ -597,5 +626,26 @@ html[data-theme='dark'] {
   .tc-filtre-rapide:hover,
   .tc-filtre-rapide:focus-visible {
     color: var(--tc-cyan);
+  }
+}
+
+/* ---- Logo en tête du menu latéral ---- */
+a.tc-logo-menu {
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  display: block;
+  margin-bottom: 1.25rem;
+  padding: 0.25rem 0 1.25rem;
+  transition: opacity 0.15s ease;
+
+  img {
+    display: block;
+    height: auto;
+    max-width: 190px;
+    width: 100%;
+  }
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.8;
   }
 }

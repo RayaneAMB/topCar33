@@ -40,6 +40,7 @@ export default buildConfig({
         Logo: '/components/admin/LogoAdmin#LogoAdmin',
         Icon: '/components/admin/IconeAdmin#IconeAdmin',
       },
+      beforeNavLinks: ['/components/admin/LogoMenuAdmin#LogoMenuAdmin'],
       afterNavLinks: ['/components/admin/SelecteurThemeAdmin#SelecteurThemeAdmin'],
     },
   },

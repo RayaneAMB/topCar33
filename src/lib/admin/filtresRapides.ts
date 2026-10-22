@@ -7,26 +7,39 @@
  * — au format du panneau, qui l'affiche alors comme s'il l'avait construite.
  */
 
+type Condition = { champ: string; valeur: string }
+
 export type FiltreRapide = {
   cle: string
   libelle: string
-  /** Champ et valeur testés ; absent pour « Toutes ». */
-  condition?: { champ: string; valeur: string }
+  /** Conditions cumulées (ET) ; aucune pour « Toutes ». */
+  conditions: Condition[]
 }
 
 export const FILTRES_RAPIDES: FiltreRapide[] = [
-  { cle: 'toutes', libelle: 'Toutes' },
-  { cle: 'location', libelle: 'À louer', condition: { champ: 'offre', valeur: 'location' } },
-  { cle: 'vente', libelle: 'À vendre', condition: { champ: 'offre', valeur: 'vente' } },
-  { cle: 'disponibles', libelle: 'Disponibles', condition: { champ: 'disponible', valeur: 'true' } },
+  { cle: 'toutes', libelle: 'Toutes', conditions: [] },
+  { cle: 'location', libelle: 'À louer', conditions: [{ champ: 'offre', valeur: 'location' }] },
+  { cle: 'vente', libelle: 'À vendre', conditions: [{ champ: 'offre', valeur: 'vente' }] },
+  { cle: 'disponibles', libelle: 'Disponibles', conditions: [{ champ: 'disponible', valeur: 'true' }] },
   {
-    cle: 'indisponibles',
-    libelle: 'Vendues ou louées',
-    condition: { champ: 'disponible', valeur: 'false' },
+    cle: 'vendues',
+    libelle: 'Vendues',
+    conditions: [
+      { champ: 'offre', valeur: 'vente' },
+      { champ: 'disponible', valeur: 'false' },
+    ],
+  },
+  {
+    cle: 'louees',
+    libelle: 'Louées',
+    conditions: [
+      { champ: 'offre', valeur: 'location' },
+      { champ: 'disponible', valeur: 'false' },
+    ],
   },
 ]
 
-const cleCondition = (champ: string) => `where[or][0][and][0][${champ}][equals]`
+const cleCondition = (position: number, champ: string) => `where[or][0][and][${position}][${champ}][equals]`
 
 /** Adresse de la liste filtrée, en gardant le tri et le nombre de lignes choisis. */
 export function adresseFiltre(filtre: FiltreRapide, actuels: URLSearchParams): string {
@@ -37,7 +50,9 @@ export function adresseFiltre(filtre: FiltreRapide, actuels: URLSearchParams): s
     if (cle.startsWith('where') || cle === 'page') return
     params.append(cle, valeur)
   })
-  if (filtre.condition) params.set(cleCondition(filtre.condition.champ), filtre.condition.valeur)
+  filtre.conditions.forEach(({ champ, valeur }, position) => {
+    params.set(cleCondition(position, champ), valeur)
+  })
   const requete = params.toString()
   return requete ? `?${requete}` : '?'
 }
@@ -47,14 +62,13 @@ export function adresseFiltre(filtre: FiltreRapide, actuels: URLSearchParams): s
  * a construit un autre dans le panneau (aucun bouton n'est alors allumé).
  */
 export function filtreActif(actuels: URLSearchParams): string | null {
-  const conditions = [...actuels.keys()].filter((cle) => cle.startsWith('where'))
-  if (conditions.length === 0) return 'toutes'
-  if (conditions.length > 1) return null
+  const presentes = [...actuels.keys()].filter((cle) => cle.startsWith('where'))
   const trouve = FILTRES_RAPIDES.find(
-    ({ condition }) =>
-      condition &&
-      conditions[0] === cleCondition(condition.champ) &&
-      actuels.get(conditions[0]) === condition.valeur,
+    ({ conditions }) =>
+      conditions.length === presentes.length &&
+      conditions.every(
+        ({ champ, valeur }, position) => actuels.get(cleCondition(position, champ)) === valeur,
+      ),
   )
   return trouve?.cle ?? null
 }

@@ -7,6 +7,9 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  // Le badge « N » du mode développement (absent en production) masquait le
+  // bouton « Se déconnecter » en bas à gauche de l'administration.
+  devIndicators: { position: 'bottom-right' },
   images: {
     localPatterns: [
       {

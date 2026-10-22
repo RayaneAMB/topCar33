@@ -29,6 +29,7 @@ export const IDENTITE = {
   president: 'Kamal GHEZALI',
   directeurGeneral: 'Ali AMRIOU',
   email: 'contact@topcar33.com',
+  telephone: '06 63 57 48 37',
 }
 
 export const mentionsLegales = contenuRiche(
@@ -53,6 +54,7 @@ export const mentionsLegales = contenuRiche(
     `Président : ${IDENTITE.president}`,
     `Directeur général : ${IDENTITE.directeurGeneral}`,
     `Email : ${IDENTITE.email}`,
+    `Téléphone : ${IDENTITE.telephone}`,
   ),
 
   titre2('Directeur de la publication'),

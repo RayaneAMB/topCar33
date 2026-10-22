@@ -47,3 +47,22 @@ describe('filtreActif', () => {
     expect(filtreActif(actuels)).toBeNull()
   })
 })
+
+describe('Vendues et Louées', () => {
+  it('« Vendues » cumule offre à vendre ET indisponible', () => {
+    const params = new URLSearchParams(adresseFiltre(filtre('vendues'), new URLSearchParams()))
+    expect(params.get('where[or][0][and][0][offre][equals]')).toBe('vente')
+    expect(params.get('where[or][0][and][1][disponible][equals]')).toBe('false')
+  })
+
+  it('« Louées » cumule offre à louer ET indisponible', () => {
+    const params = new URLSearchParams(adresseFiltre(filtre('louees'), new URLSearchParams()))
+    expect(params.get('where[or][0][and][0][offre][equals]')).toBe('location')
+    expect(params.get('where[or][0][and][1][disponible][equals]')).toBe('false')
+  })
+
+  it('« À vendre » ne s’allume pas sur « Vendues »', () => {
+    const adresse = adresseFiltre(filtre('vendues'), new URLSearchParams())
+    expect(filtreActif(new URLSearchParams(adresse))).toBe('vendues')
+  })
+})
