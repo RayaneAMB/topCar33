@@ -5,6 +5,7 @@
  * placé et habillé différemment dans chacun des deux menus.
  */
 export const LIENS_MENU = [
+  { href: '/', libelle: 'Accueil' },
   { href: '/location', libelle: 'À louer' },
   { href: '/vente', libelle: 'À vendre' },
 ] as const

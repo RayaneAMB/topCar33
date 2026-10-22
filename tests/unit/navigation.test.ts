@@ -39,7 +39,8 @@ describe('LIENS_MENU', () => {
   it('ne contient que des chemins internes, sans barre finale', () => {
     for (const { href, libelle } of LIENS_MENU) {
       expect(href.startsWith('/')).toBe(true)
-      expect(href.endsWith('/')).toBe(false)
+      // « / » (l'accueil) est le seul chemin qui finit par une barre.
+      if (href !== '/') expect(href.endsWith('/')).toBe(false)
       expect(libelle.length).toBeGreaterThan(0)
     }
   })
